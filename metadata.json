@@ -1,0 +1,6 @@
+{
+  "name": "Meme Lab",
+  "description": "Meme Lab V 1.2 — Разработано командой 3R Games. Браузерная 2D игра в жанре merge & idle simulator, где игроки комбинируют животных, фрукты и предметы для создания абсурдных мемов-существ.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
