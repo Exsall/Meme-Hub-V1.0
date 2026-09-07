@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { BookOpen, Check, ExternalLink, Lock, Sparkles, X, Zap } from 'lucide-react';
-import { CREATURES, INGREDIENTS, RARITY_CONFIG } from '../../data/gameData';
+import { BookOpen, Check, Dna, ExternalLink, Lock, Sparkles, X, Zap } from 'lucide-react';
+import { CREATURES, getItemMeta, INGREDIENTS, RARITY_CONFIG } from '../../data/gameData';
 import { useGame } from '../../context/GameContext';
 import { Creature } from '../../types/game';
 import { soundManager } from '../../utils/audio';
@@ -17,21 +17,31 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
   onClose,
   onSelectFormula,
 }) => {
-  const { inventory, discoveredCreatures } = useGame();
-  const [filter, setFilter] = useState<'all' | 'ready' | 'discovered'>('all');
+  const { inventory, discoveredCreatures, backpackCreatures } = useGame();
+  const [filter, setFilter] = useState<'all' | 'ready' | 'discovered' | 'fusions'>('all');
 
   if (!isOpen) return null;
 
-  const getIngredient = (id: string) => INGREDIENTS.find((i) => i.id === id);
-
-  const hasIngredient = (id: string) => (inventory[id] || 0) > 0;
+  const hasItem = (id: string) => {
+    const meta = getItemMeta(id);
+    if (meta.isCreature) {
+      return discoveredCreatures.includes(id) || backpackCreatures.some((b) => b.creatureId === id);
+    }
+    return (inventory[id] || 0) > 0;
+  };
 
   const canCraftCreature = (c: Creature) => {
     const [idA, idB] = c.ingredients;
+    const metaA = getItemMeta(idA);
+    const metaB = getItemMeta(idB);
+
     if (idA === idB) {
+      if (metaA.isCreature) {
+        return discoveredCreatures.includes(idA);
+      }
       return (inventory[idA] || 0) >= 2;
     }
-    return hasIngredient(idA) && hasIngredient(idB);
+    return hasItem(idA) && hasItem(idB);
   };
 
   const filteredCreatures = CREATURES.filter((c) => {
@@ -40,11 +50,13 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
 
     if (filter === 'ready') return canCraft;
     if (filter === 'discovered') return isDiscovered;
+    if (filter === 'fusions') return c.isFusion;
     return true;
   });
 
   const discoveredCount = discoveredCreatures.length;
   const readyCount = CREATURES.filter(canCraftCreature).length;
+  const fusionsCount = CREATURES.filter((c) => c.isFusion).length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md select-none animate-fade-in">
@@ -77,13 +89,13 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
         </div>
 
         {/* Filter Tabs */}
-        <div className="px-4 py-2 bg-slate-950/60 border-b border-slate-800/80 flex gap-2">
+        <div className="px-4 py-2 bg-slate-950/60 border-b border-slate-800/80 flex gap-1.5 overflow-x-auto no-scrollbar">
           <button
             onClick={() => {
               soundManager.playClick();
               setFilter('all');
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-black shrink-0 transition-all ${
               filter === 'all'
                 ? 'bg-amber-400 text-slate-950 shadow-md'
                 : 'bg-slate-800/60 text-slate-400 hover:text-white'
@@ -94,9 +106,23 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
           <button
             onClick={() => {
               soundManager.playClick();
+              setFilter('fusions');
+            }}
+            className={`px-3 py-1.5 rounded-xl text-xs font-black shrink-0 transition-all flex items-center gap-1 ${
+              filter === 'fusions'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                : 'bg-slate-800/60 text-slate-400 hover:text-white'
+            }`}
+          >
+            <Dna className="w-3.5 h-3.5" />
+            <span>🧬 Фьюжн ({fusionsCount})</span>
+          </button>
+          <button
+            onClick={() => {
+              soundManager.playClick();
               setFilter('ready');
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1 ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-black shrink-0 transition-all flex items-center gap-1 ${
               filter === 'ready'
                 ? 'bg-emerald-500 text-slate-950 shadow-md'
                 : 'bg-slate-800/60 text-slate-400 hover:text-white'
@@ -112,7 +138,7 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
               soundManager.playClick();
               setFilter('discovered');
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-black shrink-0 transition-all ${
               filter === 'discovered'
                 ? 'bg-indigo-500 text-white shadow-md'
                 : 'bg-slate-800/60 text-slate-400 hover:text-white'
@@ -126,16 +152,16 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
         <div className="p-3 sm:p-4 overflow-y-auto space-y-3 flex-1">
           {filteredCreatures.length === 0 ? (
             <div className="py-12 text-center text-slate-400 text-xs">
-              В этой категории пока ничего нет. Собери ингредиенты или открой коробки в магазине!
+              В этой категории пока ничего нет. Собери ингредиенты или скрещивай открытых существ!
             </div>
           ) : (
             filteredCreatures.map((creature) => {
               const isDiscovered = discoveredCreatures.includes(creature.id);
               const [idA, idB] = creature.ingredients;
-              const ingA = getIngredient(idA);
-              const ingB = getIngredient(idB);
-              const hasA = hasIngredient(idA);
-              const hasB = hasIngredient(idB);
+              const metaA = getItemMeta(idA);
+              const metaB = getItemMeta(idB);
+              const hasA = hasItem(idA);
+              const hasB = hasItem(idB);
               const canCraft = canCraftCreature(creature);
               const rarityMeta = RARITY_CONFIG[creature.rarity];
 
@@ -171,6 +197,11 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
                           <h4 className="text-sm font-black text-white">
                             {isDiscovered ? creature.name : 'Неизвестный мем'}
                           </h4>
+                          {creature.isFusion && (
+                            <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-purple-900/80 border border-purple-500/60 text-purple-300">
+                              🧬 Фьюжн
+                            </span>
+                          )}
                           <span
                             className={`text-[9px] font-black px-2 py-0.5 rounded-full ${rarityMeta.bgBadge}`}
                           >
@@ -191,7 +222,7 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
                           onSelectFormula(idA, idB);
                           onClose();
                         }}
-                        className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs shrink-0 flex items-center gap-1 shadow-md active:scale-95 transition-transform"
+                        className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs shrink-0 flex items-center gap-1 shadow-md active:scale-95 transition-transform cursor-pointer"
                       >
                         <Zap className="w-3.5 h-3.5" />
                         <span>В СЛОТЫ</span>
@@ -202,7 +233,7 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
                   {/* Formula Row */}
                   <div className="mt-2.5 pt-2 border-t border-slate-700/50 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      {/* Ingredient A */}
+                      {/* Ingredient/Creature A */}
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border font-bold ${
                           hasA
@@ -210,14 +241,14 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
                             : 'bg-slate-800 border-slate-700 text-slate-400'
                         }`}
                       >
-                        <span>{ingA?.emoji || '❓'}</span>
-                        <span>{ingA?.name || idA}</span>
+                        <span>{metaA.emoji}</span>
+                        <span>{metaA.name}</span>
                         {hasA ? <Check className="w-3 h-3 text-emerald-400" /> : <Lock className="w-3 h-3 opacity-40" />}
                       </span>
 
                       <span className="text-slate-500 font-bold">+</span>
 
-                      {/* Ingredient B */}
+                      {/* Ingredient/Creature B */}
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border font-bold ${
                           hasB
@@ -225,8 +256,8 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
                             : 'bg-slate-800 border-slate-700 text-slate-400'
                         }`}
                       >
-                        <span>{ingB?.emoji || '❓'}</span>
-                        <span>{ingB?.name || idB}</span>
+                        <span>{metaB.emoji}</span>
+                        <span>{metaB.name}</span>
                         {hasB ? <Check className="w-3 h-3 text-emerald-400" /> : <Lock className="w-3 h-3 opacity-40" />}
                       </span>
                     </div>
@@ -244,7 +275,7 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
         {/* Footer info */}
         <div className="p-3 bg-slate-950/90 border-t border-slate-800 text-center">
           <p className="text-[11px] text-slate-400">
-            🧪 Экспериментируй! Даже если рецепта нет в книге, ингредиенты могут создать неожиданную мутацию!
+            🧪 Экспериментируй! Скрещивай любых двух существ между собой для получения уникальных мега-гибридов!
           </p>
         </div>
       </div>

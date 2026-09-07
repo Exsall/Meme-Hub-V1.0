@@ -1155,6 +1155,280 @@ export const CREATURES: Creature[] = [
     hint: 'Абсолютный дзен капибары + чистейший вечный алмаз.',
     description: 'Самый богатый и спокойный джентльмен во всей мемной вселенной.',
   },
+
+  // ==========================================
+  // 🧬 HYBRID & MEGA-FUSION CREATURES (Скрещивание существ)
+  // ==========================================
+  {
+    id: 'bananacat_applepup',
+    name: 'Фруктовый Мяу-Пёс',
+    rarity: 'uncommon',
+    emoji: '🐱🍎',
+    visualType: 'bananacat_applepup',
+    ingredients: ['bananacat', 'applepup'],
+    baseIncome: 30,
+    baseUpgradePrice: 360,
+    maxLevel: 30,
+    hint: 'Скрести Бананокота 🍌 и Яблопса 🐶',
+    description: 'Вечный спор кошатников и собачников решён в сладкой фруктовой гармонии!',
+    isFusion: true,
+    fusionParents: ['bananacat', 'applepup'],
+  },
+  {
+    id: 'duckbanana_frogavocado',
+    name: 'Авокадо-Уткожаб',
+    rarity: 'uncommon',
+    emoji: '🦆🥑',
+    visualType: 'duckbanana_frogavocado',
+    ingredients: ['duckbanana', 'frogavocado'],
+    baseIncome: 42,
+    baseUpgradePrice: 500,
+    maxLevel: 30,
+    hint: 'Скрести Бананоутку 🍌 и Авокадо-Жабку 🥑',
+    description: 'Крякает и квакает на питательной бананово-авокадной диете!',
+    isFusion: true,
+    fusionParents: ['duckbanana', 'frogavocado'],
+  },
+  {
+    id: 'coolcat_rockhamster',
+    name: 'Рок-Кот в Очках',
+    rarity: 'rare',
+    emoji: '🐱🎸',
+    visualType: 'coolcat_rockhamster',
+    ingredients: ['coolcat', 'rockhamster'],
+    baseIncome: 95,
+    baseUpgradePrice: 1100,
+    maxLevel: 35,
+    hint: 'Скрести Крутокота 🕶️ и Рок-Хомяка 🎸',
+    description: 'Фронтмен главной мем-рок группы на полянке. Собирает полные стадионы!',
+    isFusion: true,
+    fusionParents: ['coolcat', 'rockhamster'],
+  },
+  {
+    id: 'burgerdog_pizzacat',
+    name: 'Фастфуд Кот-и-Пёс',
+    rarity: 'rare',
+    emoji: '🐶🍕',
+    visualType: 'burgerdog_pizzacat',
+    ingredients: ['burgerdog', 'pizzacat'],
+    baseIncome: 110,
+    baseUpgradePrice: 1300,
+    maxLevel: 35,
+    hint: 'Скрести Бургердога 🍔 и Пиццакота 🍕',
+    description: 'Пиццакот верхом на бургердоге: сытно, вкусно и прибыльно!',
+    isFusion: true,
+    fusionParents: ['burgerdog', 'pizzacat'],
+  },
+  {
+    id: 'sneakerdog_monkeyskate',
+    name: 'Турбо-Стрит Догги',
+    rarity: 'rare',
+    emoji: '🐶🛹',
+    visualType: 'sneakerdog_monkeyskate',
+    ingredients: ['sneakerdog', 'monkeyskate'],
+    baseIncome: 120,
+    baseUpgradePrice: 1400,
+    maxLevel: 35,
+    hint: 'Скрести Сникердога 👟 и Монке-Скейтера 🛹',
+    description: 'Флексит в кроссовках на доске, собирая лайки со всей мемной полянки!',
+    isFusion: true,
+    fusionParents: ['sneakerdog', 'monkeyskate'],
+  },
+  {
+    id: 'coolcat_avocadopanda',
+    name: 'Авокадо-Крутокот',
+    rarity: 'epic',
+    emoji: '🐱🥑',
+    visualType: 'coolcat_avocadopanda',
+    ingredients: ['coolcat', 'avocadopanda'],
+    baseIncome: 360,
+    baseUpgradePrice: 4200,
+    maxLevel: 40,
+    hint: 'Скрести Крутокота 🕶️ и Пандавокадо 🥑',
+    description: 'Крутокот одолжил очки у авокадо-панды: супер-чилл, стиль и отличные доходы!',
+    isFusion: true,
+    fusionParents: ['coolcat', 'avocadopanda'],
+  },
+  {
+    id: 'melodile_pineshark',
+    name: 'Арбузо-Акулодил',
+    rarity: 'epic',
+    emoji: '🐊🍍',
+    visualType: 'melodile_pineshark',
+    ingredients: ['melodile', 'pineshark'],
+    baseIncome: 390,
+    baseUpgradePrice: 4500,
+    maxLevel: 40,
+    hint: 'Скрести Арбузодила 🍉 и Ананакулу 🦈',
+    description: 'Двойной тропический хищник в арбузной броне и с ананасовым плавником!',
+    isFusion: true,
+    fusionParents: ['melodile', 'pineshark'],
+  },
+  {
+    id: 'coffeecapy_rockhamster',
+    name: 'Кофе-Рок Капибара',
+    rarity: 'epic',
+    emoji: '🦫🎸',
+    visualType: 'coffeecapy_rockhamster',
+    ingredients: ['coffeecapy', 'rockhamster'],
+    baseIncome: 410,
+    baseUpgradePrice: 4700,
+    maxLevel: 40,
+    hint: 'Скрести Кофебару ☕ и Рок-Хомяка 🎸',
+    description: 'Капибара на тройном эспрессо с электрогитарой выдаёт легендарное рок-соло!',
+    isFusion: true,
+    fusionParents: ['coffeecapy', 'rockhamster'],
+  },
+  {
+    id: 'avocadopanda_coffeecapy',
+    name: 'Дзен-Панда Кофебара',
+    rarity: 'epic',
+    emoji: '🐼☕',
+    visualType: 'avocadopanda_coffeecapy',
+    ingredients: ['avocadopanda', 'coffeecapy'],
+    baseIncome: 380,
+    baseUpgradePrice: 4400,
+    maxLevel: 40,
+    hint: 'Скрести Пандавокадо 🥑 и Кофебару ☕',
+    description: 'Идеальный баланс: питается авокадо, пьёт кофе и излучает вселенский дзен.',
+    isFusion: true,
+    fusionParents: ['avocadopanda', 'coffeecapy'],
+  },
+  {
+    id: 'chickyrocket_skaterbara',
+    name: 'Турбо-Скейтокурица',
+    rarity: 'epic',
+    emoji: '🐔🛹',
+    visualType: 'chickyrocket_skaterbara',
+    ingredients: ['chickyrocket', 'skaterbara'],
+    baseIncome: 420,
+    baseUpgradePrice: 4800,
+    maxLevel: 40,
+    hint: 'Скрести Турбо-Курицу 🚀 и Скейтобару 🛹',
+    description: 'Несётся на реактивном скейте со скоростью света, исполняя безумные трюки!',
+    isFusion: true,
+    fusionParents: ['chickyrocket', 'skaterbara'],
+  },
+  {
+    id: 'diamondfox_cyberfrog',
+    name: 'Кибер-Алмазная Лиса',
+    rarity: 'legendary',
+    emoji: '🦊⚡',
+    visualType: 'diamondfox_cyberfrog',
+    ingredients: ['diamondfox', 'cyberfrog'],
+    baseIncome: 890,
+    baseUpgradePrice: 10500,
+    maxLevel: 50,
+    hint: 'Скрести Алмазного Лиса 💎 и Кибер-Жабу ⚡',
+    description: 'Неоновая лисица с алмазными кристаллами, генерирующая коины прямо из сети!',
+    isFusion: true,
+    fusionParents: ['diamondfox', 'cyberfrog'],
+  },
+  {
+    id: 'laserhamster_pineshark',
+    name: 'Лазерная Мега-Акула',
+    rarity: 'legendary',
+    emoji: '🦈🔮',
+    visualType: 'laserhamster_pineshark',
+    ingredients: ['laserhamster', 'pineshark'],
+    baseIncome: 920,
+    baseUpgradePrice: 11000,
+    maxLevel: 50,
+    hint: 'Скрести Лазерного Хомяка 🐹 и Ананакулу 🦈',
+    description: 'Стреляет плазменными лучами из ананасового плавника под бодрый мемный бит!',
+    isFusion: true,
+    fusionParents: ['laserhamster', 'pineshark'],
+  },
+  {
+    id: 'bubbleaxolotl_icecat',
+    name: 'Ледяной Пузырекотль',
+    rarity: 'legendary',
+    emoji: '🦎🧊',
+    visualType: 'bubbleaxolotl_icecat',
+    ingredients: ['bubbleaxolotl', 'icecat'],
+    baseIncome: 940,
+    baseUpgradePrice: 11200,
+    maxLevel: 50,
+    hint: 'Скрести Пузырькового Аксолотля 🫧 и Айс-Кота 🧊',
+    description: 'Пускает морозные светящиеся пузыри со звонким хрустальным мурлыканьем!',
+    isFusion: true,
+    fusionParents: ['bubbleaxolotl', 'icecat'],
+  },
+  {
+    id: 'firefox_chilligator',
+    name: 'Пламенный Чиллегатор',
+    rarity: 'legendary',
+    emoji: '🐊🔥',
+    visualType: 'firefox_chilligator',
+    ingredients: ['firefox', 'chilligator'],
+    baseIncome: 900,
+    baseUpgradePrice: 10800,
+    maxLevel: 50,
+    hint: 'Скрести Огнелиса 🔥 и Чиллегатора 🕶️',
+    description: 'Греется в лучах славы, попивая холодный лимонад посреди языков пламени!',
+    isFusion: true,
+    fusionParents: ['firefox', 'chilligator'],
+  },
+  {
+    id: 'astroaxolotl_cosmicpenguin',
+    name: 'Звёздный Пингво-Аксолотль',
+    rarity: 'legendary',
+    emoji: '🦎🐧',
+    visualType: 'astroaxolotl_cosmicpenguin',
+    ingredients: ['astroaxolotl', 'cosmicpenguin'],
+    baseIncome: 980,
+    baseUpgradePrice: 11800,
+    maxLevel: 50,
+    hint: 'Скрести Астро-Аксолотля 🌌 и Космического Пингвина 🐧',
+    description: 'Парят в невесомости, создавая новые созвездия из космических кристаллов!',
+    isFusion: true,
+    fusionParents: ['astroaxolotl', 'cosmicpenguin'],
+  },
+  {
+    id: 'bananacat_diamondcapy',
+    name: 'Алмазный Банано-Капи',
+    rarity: 'secret',
+    emoji: '🦫🍌',
+    visualType: 'bananacat_diamondcapy',
+    ingredients: ['bananacat', 'diamondcapy'],
+    baseIncome: 2800,
+    baseUpgradePrice: 32000,
+    maxLevel: 50,
+    hint: 'Скрести Бананокота 🍌 и Алмазного Капибарона 💎',
+    description: 'Вместо слёз плачет чистейшими алмазами и осыпает поляну золотом!',
+    isFusion: true,
+    fusionParents: ['bananacat', 'diamondcapy'],
+  },
+  {
+    id: 'spacefox_rainbowcat',
+    name: 'Галактический Радуголис',
+    rarity: 'secret',
+    emoji: '🦊🌈',
+    visualType: 'spacefox_rainbowcat',
+    ingredients: ['spacefox', 'rainbowcat'],
+    baseIncome: 3600,
+    baseUpgradePrice: 42000,
+    maxLevel: 50,
+    hint: 'Скрести Космолиса 🌌 и Радужного Няна 🌈',
+    description: 'Летит сквозь галактики, оставляя бесконечный радужно-звёздный шлейф!',
+    isFusion: true,
+    fusionParents: ['spacefox', 'rainbowcat'],
+  },
+  {
+    id: 'kingcat_gigacapy',
+    name: 'Император Гига-Мемов',
+    rarity: 'secret',
+    emoji: '🦫👑',
+    visualType: 'kingcat_gigacapy',
+    ingredients: ['kingcat', 'gigacapy'],
+    baseIncome: 4200,
+    baseUpgradePrice: 50000,
+    maxLevel: 50,
+    hint: 'Скрести Императора Кота 👑 и Гигачад Капибару 👑',
+    description: 'Абсолютный верховный правитель вселенной мемов. Непревзойдённая мощь!',
+    isFusion: true,
+    fusionParents: ['kingcat', 'gigacapy'],
+  },
 ];
 
 export const ZONES: Zone[] = [
@@ -1593,6 +1867,46 @@ export const QUESTS: Quest[] = [
     icon: '🚀',
     reward: { coins: 6000, xp: 100, boxId: 'mega_box' },
   },
+  {
+    id: 'q26_spin_wheel_1',
+    title: 'Первый Спин Фортуны',
+    description: 'Покрути Мемное Колесо Фортуны 1 раз',
+    type: 'spin_wheel',
+    target: 1,
+    category: 'beginner',
+    icon: '🎡',
+    reward: { coins: 1000, xp: 50 },
+  },
+  {
+    id: 'q27_spin_wheel_3',
+    title: 'Азартный Исследователь',
+    description: 'Покрути Колесо Фортуны 3 раза',
+    type: 'spin_wheel',
+    target: 3,
+    category: 'master',
+    icon: '🎰',
+    reward: { coins: 2500, xp: 120, boxId: 'super_box' },
+  },
+  {
+    id: 'q28_spin_wheel_7',
+    title: 'Любимчик Фортуны',
+    description: 'Покрути Колесо Фортуны 7 раз',
+    type: 'spin_wheel',
+    target: 7,
+    category: 'master',
+    icon: '👑',
+    reward: { coins: 6000, xp: 250, boxId: 'mega_box' },
+  },
+  {
+    id: 'q29_spin_wheel_15',
+    title: 'Король Джекпотов',
+    description: 'Покрути Колесо Фортуны 15 раз',
+    type: 'spin_wheel',
+    target: 15,
+    category: 'master',
+    icon: '💎',
+    reward: { coins: 15000, xp: 500, boxId: 'mega_box' },
+  },
 ];
 
 export const DAILY_REWARDS = [
@@ -1812,8 +2126,56 @@ export const ALTERNATIVE_RECIPES: Record<string, [string, string][]> = {
   ],
 };
 
+export function getItemMeta(id: string): {
+  id: string;
+  name: string;
+  emoji: string;
+  rarity: Rarity;
+  isCreature: boolean;
+  color: string;
+  cost?: number;
+  description: string;
+} {
+  const ing = INGREDIENTS.find((i) => i.id === id);
+  if (ing) {
+    return {
+      id: ing.id,
+      name: ing.name,
+      emoji: ing.emoji,
+      rarity: ing.rarity,
+      isCreature: false,
+      color: ing.color,
+      cost: ing.cost,
+      description: ing.description,
+    };
+  }
+  const creat = CREATURES.find((c) => c.id === id);
+  if (creat) {
+    const avatar = getCreaturePetAndItem(creat);
+    return {
+      id: creat.id,
+      name: creat.name,
+      emoji: avatar.petEmoji,
+      rarity: creat.rarity,
+      isCreature: true,
+      color: RARITY_CONFIG[creat.rarity].color,
+      cost: creat.baseUpgradePrice,
+      description: creat.description,
+    };
+  }
+  return {
+    id,
+    name: id,
+    emoji: '✨',
+    rarity: 'common',
+    isCreature: false,
+    color: '#94a3b8',
+    description: '',
+  };
+}
+
 export function findCreatureByIngredients(idA: string, idB: string): Creature | null {
-  // 1. Check primary recipe
+  // 1. Check primary recipe (ingredients or fusion parents)
   const primary = CREATURES.find((c) => {
     const [i1, i2] = c.ingredients;
     return (i1 === idA && i2 === idB) || (i1 === idB && i2 === idA);
@@ -1834,7 +2196,7 @@ export function findCreatureByIngredients(idA: string, idB: string): Creature | 
   return null;
 }
 
-// Compute mixing result with smart mutations, eliminating repetitive static drops
+// Compute mixing result with smart mutations, supporting ingredient-ingredient, creature-creature, and creature-ingredient
 export function computeMixResult(
   idA: string,
   idB: string,
@@ -1846,17 +2208,8 @@ export function computeMixResult(
     return { creature: exact, isMutation: false };
   }
 
-  // 2. Genetic Affinity: Find creatures related to either ingredient
-  const partialMatches = CREATURES.filter((c) => {
-    const [i1, i2] = c.ingredients;
-    const alts = ALTERNATIVE_RECIPES[c.id] || [];
-    const hasInPrimary = i1 === idA || i2 === idA || i1 === idB || i2 === idB;
-    const hasInAlt = alts.some(([a1, a2]) => a1 === idA || a2 === idA || a1 === idB || a2 === idB);
-    return hasInPrimary || hasInAlt;
-  });
-
-  const ingA = INGREDIENTS.find((i) => i.id === idA);
-  const ingB = INGREDIENTS.find((i) => i.id === idB);
+  const metaA = getItemMeta(idA);
+  const metaB = getItemMeta(idB);
 
   const rarityRank: Record<Rarity, number> = {
     common: 1,
@@ -1867,12 +2220,54 @@ export function computeMixResult(
     secret: 6,
   };
 
-  const rankA = ingA ? rarityRank[ingA.rarity] : 1;
-  const rankB = ingB ? rarityRank[ingB.rarity] : 1;
+  const rankA = rarityRank[metaA.rarity] || 1;
+  const rankB = rarityRank[metaB.rarity] || 1;
   const maxRank = Math.max(rankA, rankB);
 
+  // 2. If mixing Creature + Creature (HYPER-FUSION MODE)
+  if (metaA.isCreature && metaB.isCreature) {
+    // Target rank progression based on parents:
+    // Common(1)+Common(1) -> Target Rank 2 (Uncommon)
+    // Common(1)+Uncommon(2) -> Target Rank 2 or 3 (Uncommon/Rare)
+    // Uncommon(2)+Uncommon(2) -> Target Rank 3 (Rare)
+    // Rare(3)+Rare(3) -> Target Rank 4 (Epic)
+    // Epic(4)+Epic(4) -> Target Rank 5 (Legendary)
+    // Legendary(5)+Legendary(5) -> Target Rank 6 (Secret)
+    const targetRank = Math.min(6, maxRank + (rankA === rankB ? 1 : 0));
+    const minAcceptableRank = Math.max(1, targetRank - 1);
+
+    const fusionCandidates = CREATURES.filter(
+      (c) => c.isFusion && rarityRank[c.rarity] >= minAcceptableRank && rarityRank[c.rarity] <= targetRank
+    );
+
+    const validFusions =
+      fusionCandidates.length > 0
+        ? fusionCandidates
+        : CREATURES.filter((c) => c.isFusion && rarityRank[c.rarity] <= targetRank);
+
+    if (validFusions.length > 0) {
+      const undiscoveredFusions = validFusions.filter((c) => !discoveredCreatureIds.includes(c.id));
+      if (undiscoveredFusions.length > 0 && Math.random() < 0.9) {
+        const chosen = undiscoveredFusions[Math.floor(Math.random() * undiscoveredFusions.length)];
+        return { creature: chosen, isMutation: true };
+      }
+      const chosen = validFusions[Math.floor(Math.random() * validFusions.length)];
+      return { creature: chosen, isMutation: true };
+    }
+  }
+
+  // 3. Genetic Affinity: Find creatures related to either parent or ingredient within reasonable rank tier
+  const allowedMaxRank = Math.min(6, maxRank + 1);
+  const partialMatches = CREATURES.filter((c) => {
+    if (rarityRank[c.rarity] > allowedMaxRank) return false;
+    const [i1, i2] = c.ingredients;
+    const alts = ALTERNATIVE_RECIPES[c.id] || [];
+    const hasInPrimary = i1 === idA || i2 === idA || i1 === idB || i2 === idB;
+    const hasInAlt = alts.some(([a1, a2]) => a1 === idA || a2 === idA || a1 === idB || a2 === idB);
+    return hasInPrimary || hasInAlt;
+  });
+
   if (partialMatches.length > 0) {
-    // Separate into undiscovered and discovered
     const undiscovered = partialMatches.filter((c) => !discoveredCreatureIds.includes(c.id));
 
     // 85% priority given to undiscovered memes so player gets progression!
@@ -1881,17 +2276,19 @@ export function computeMixResult(
       return { creature: chosen, isMutation: true };
     }
 
-    // Otherwise random from matching candidates
     const chosen = partialMatches[Math.floor(Math.random() * partialMatches.length)];
     return { creature: chosen, isMutation: true };
   }
 
-  // 3. Fallback: select random creature aligned with ingredient rarity tier
+  // 4. Fallback: select random creature closely aligned with rarity tier
   let tierCandidates = CREATURES.filter((c) => {
     const cRank = rarityRank[c.rarity];
-    return Math.abs(cRank - maxRank) <= 1;
+    return cRank <= allowedMaxRank && Math.abs(cRank - maxRank) <= 1;
   });
 
+  if (tierCandidates.length === 0) {
+    tierCandidates = CREATURES.filter((c) => rarityRank[c.rarity] <= allowedMaxRank);
+  }
   if (tierCandidates.length === 0) {
     tierCandidates = CREATURES;
   }
@@ -1914,6 +2311,30 @@ export function calculateUpgradeCost(creature: Creature, level: number): number 
   return Math.floor(creature.baseUpgradePrice * Math.pow(DEFAULT_CONFIG.priceMultiplier, level - 1));
 }
 
+export const FUSION_AVATAR_MAP: Record<
+  string,
+  { petEmoji: string; itemEmoji: string; itemName: string; petId: string; itemId: string }
+> = {
+  bananacat_applepup: { petEmoji: '🐱', itemEmoji: '🍎', itemName: 'Сладкое Яблоко', petId: 'cat', itemId: 'apple' },
+  duckbanana_frogavocado: { petEmoji: '🦆', itemEmoji: '🥑', itemName: 'Спелое Авокадо', petId: 'duck', itemId: 'avocado' },
+  coolcat_rockhamster: { petEmoji: '🐱', itemEmoji: '🎸', itemName: 'Рок-Гитара', petId: 'cat', itemId: 'guitar' },
+  burgerdog_pizzacat: { petEmoji: '🐶', itemEmoji: '🍕', itemName: 'Пицца-Слайс', petId: 'dog', itemId: 'pizza' },
+  sneakerdog_monkeyskate: { petEmoji: '🐶', itemEmoji: '🛹', itemName: 'Мемный Скейт', petId: 'dog', itemId: 'skateboard' },
+  coolcat_avocadopanda: { petEmoji: '🐼', itemEmoji: '🕶️', itemName: 'Крутые Очки', petId: 'panda', itemId: 'sunglasses' },
+  melodile_pineshark: { petEmoji: '🐊', itemEmoji: '🍍', itemName: 'Ананас', petId: 'croc', itemId: 'pineapple' },
+  coffeecapy_rockhamster: { petEmoji: '🦫', itemEmoji: '🎸', itemName: 'Электрогитара', petId: 'capybara', itemId: 'guitar' },
+  avocadopanda_coffeecapy: { petEmoji: '🐼', itemEmoji: '☕', itemName: 'Ароматный Кофе', petId: 'panda', itemId: 'coffee' },
+  chickyrocket_skaterbara: { petEmoji: '🐔', itemEmoji: '🚀', itemName: 'Турбо-Ракета', petId: 'chicken', itemId: 'rocket' },
+  diamondfox_cyberfrog: { petEmoji: '🦊', itemEmoji: '⚡', itemName: 'Кибер-Энергия', petId: 'fox', itemId: 'lightning' },
+  laserhamster_pineshark: { petEmoji: '🦈', itemEmoji: '🔮', itemName: 'Плазменная Сфера', petId: 'shark', itemId: 'crystal' },
+  bubbleaxolotl_icecat: { petEmoji: '🦎', itemEmoji: '🧊', itemName: 'Ледяной Кристалл', petId: 'axolotl', itemId: 'ice' },
+  firefox_chilligator: { petEmoji: '🐊', itemEmoji: '🔥', itemName: 'Вечный Огонь', petId: 'croc', itemId: 'fire' },
+  astroaxolotl_cosmicpenguin: { petEmoji: '🐧', itemEmoji: '🌌', itemName: 'Космическая Туманность', petId: 'penguin', itemId: 'galaxy' },
+  bananacat_diamondcapy: { petEmoji: '🦫', itemEmoji: '🍌', itemName: 'Алмазный Банан', petId: 'capybara', itemId: 'banana' },
+  spacefox_rainbowcat: { petEmoji: '🦊', itemEmoji: '🌈', itemName: 'Радужный Шлейф', petId: 'fox', itemId: 'rainbow' },
+  kingcat_gigacapy: { petEmoji: '🦫', itemEmoji: '👑', itemName: 'Корона Всевластия', petId: 'capybara', itemId: 'crown' },
+};
+
 export function getCreaturePetAndItem(creature: Creature): {
   petEmoji: string;
   itemEmoji: string;
@@ -1921,6 +2342,25 @@ export function getCreaturePetAndItem(creature: Creature): {
   petId: string;
   itemId: string;
 } {
+  // 1. If explicit fusion map exists
+  if (FUSION_AVATAR_MAP[creature.id]) {
+    return FUSION_AVATAR_MAP[creature.id];
+  }
+
+  // 2. If it's a dynamic fusion creature
+  if (creature.isFusion) {
+    const emojis = Array.from(creature.emoji);
+    const petEmoji = emojis[0] || '🐱';
+    const itemEmoji = emojis[1] || '✨';
+    return {
+      petEmoji,
+      itemEmoji,
+      itemName: 'Гибридный артефакт',
+      petId: 'cat',
+      itemId: 'fusion',
+    };
+  }
+
   const ingA = INGREDIENTS.find((i) => i.id === creature.ingredients[0]);
   const ingB = INGREDIENTS.find((i) => i.id === creature.ingredients[1]);
 
@@ -1934,4 +2374,108 @@ export function getCreaturePetAndItem(creature: Creature): {
     petId: petIng?.id || 'cat',
     itemId: itemIng?.id || '',
   };
+}
+
+export const WHEEL_SECTORS: import('../types/game').WheelSector[] = [
+  {
+    id: 'coins_1500',
+    label: '1,500',
+    sublabel: 'монет',
+    icon: '🪙',
+    color: '#f59e0b', // amber
+    textColor: '#ffffff',
+    rarity: 'common',
+    reward: { coins: 1500 },
+    weight: 26,
+  },
+  {
+    id: 'ingredient_banana',
+    label: 'x3 Банана',
+    sublabel: 'для крафта',
+    icon: '🍌',
+    color: '#eab308', // yellow
+    textColor: '#0f172a',
+    rarity: 'uncommon',
+    reward: { ingredientId: 'banana', ingredientCount: 3 },
+    weight: 20,
+  },
+  {
+    id: 'booster_double',
+    label: 'x2 Доход',
+    sublabel: 'на 10 мин',
+    icon: '⚡',
+    color: '#3b82f6', // blue
+    textColor: '#ffffff',
+    rarity: 'rare',
+    reward: { boosterId: 'double_income', boosterDurationSec: 600 },
+    weight: 14,
+  },
+  {
+    id: 'ingredient_cat',
+    label: 'x3 Котика',
+    sublabel: 'для крафта',
+    icon: '🐱',
+    color: '#10b981', // emerald
+    textColor: '#ffffff',
+    rarity: 'uncommon',
+    reward: { ingredientId: 'cat', ingredientCount: 3 },
+    weight: 18,
+  },
+  {
+    id: 'coins_5000',
+    label: '5,000',
+    sublabel: 'монет + опыт',
+    icon: '💰',
+    color: '#ec4899', // pink
+    textColor: '#ffffff',
+    rarity: 'rare',
+    reward: { coins: 5000, xp: 200 },
+    weight: 12,
+  },
+  {
+    id: 'booster_lucky',
+    label: 'x2 Удача',
+    sublabel: 'на 10 мин',
+    icon: '🍀',
+    color: '#8b5cf6', // purple
+    textColor: '#ffffff',
+    rarity: 'rare',
+    reward: { boosterId: 'super_lucky', boosterDurationSec: 600 },
+    weight: 12,
+  },
+  {
+    id: 'box_epic',
+    label: 'Эпик Бокс',
+    sublabel: 'мистический лут',
+    icon: '📦',
+    color: '#6366f1', // indigo
+    textColor: '#ffffff',
+    rarity: 'epic',
+    reward: { boxId: 'box_epic', xp: 350 },
+    weight: 8,
+  },
+  {
+    id: 'jackpot',
+    label: 'ДЖЕКПОТ!',
+    sublabel: '15,000🪙 + 1000✨',
+    icon: '👑',
+    color: '#f97316', // orange gold
+    textColor: '#ffffff',
+    rarity: 'legendary',
+    reward: { coins: 15000, xp: 1000 },
+    weight: 5,
+  },
+];
+
+export function pickWheelWinnerSector(): import('../types/game').WheelSector {
+  const totalWeight = WHEEL_SECTORS.reduce((sum, s) => sum + s.weight, 0);
+  let randomVal = Math.random() * totalWeight;
+
+  for (const sector of WHEEL_SECTORS) {
+    if (randomVal < sector.weight) {
+      return sector;
+    }
+    randomVal -= sector.weight;
+  }
+  return WHEEL_SECTORS[0];
 }

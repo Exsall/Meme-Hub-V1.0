@@ -21,6 +21,7 @@ export const CreatureAvatar: React.FC<CreatureAvatarProps> = ({
 }) => {
   const { petEmoji, itemEmoji, itemName, petId } = getCreaturePetAndItem(creature);
   const rarityMeta = RARITY_CONFIG[creature.rarity];
+  const isFusion = !!creature.isFusion;
 
   // Size configurations
   const sizeStyles = {
@@ -31,6 +32,7 @@ export const CreatureAvatar: React.FC<CreatureAvatarProps> = ({
       itemWrapper: '-bottom-0.5 -right-0.5',
       paw: 'text-[8px] -bottom-0.5 -left-0.5',
       glow: 'inset-0 blur-xs opacity-40',
+      fusionBadge: 'text-[8px] -top-1 -right-1 px-1',
     },
     md: {
       container: 'w-14 h-14 sm:w-16 sm:h-16',
@@ -39,6 +41,7 @@ export const CreatureAvatar: React.FC<CreatureAvatarProps> = ({
       itemWrapper: '-bottom-1 -right-1',
       paw: 'text-[10px] -bottom-0.5 -left-1',
       glow: 'inset-0.5 blur-sm opacity-40',
+      fusionBadge: 'text-[9px] -top-1 -right-1 px-1',
     },
     lg: {
       container: 'w-16 h-16 sm:w-20 sm:h-20',
@@ -47,6 +50,7 @@ export const CreatureAvatar: React.FC<CreatureAvatarProps> = ({
       itemWrapper: '-bottom-1 -right-1 sm:-right-1.5',
       paw: 'text-[11px] -bottom-0.5 -left-1',
       glow: 'inset-1 blur-md opacity-45',
+      fusionBadge: 'text-[10px] -top-1.5 -right-1.5 px-1.5',
     },
     xl: {
       container: 'w-28 h-28 sm:w-32 sm:h-32',
@@ -55,6 +59,7 @@ export const CreatureAvatar: React.FC<CreatureAvatarProps> = ({
       itemWrapper: '-bottom-2 -right-2 sm:-right-3',
       paw: 'text-sm -bottom-1 -left-1.5',
       glow: 'inset-2 blur-xl opacity-50',
+      fusionBadge: 'text-xs -top-2 -right-2 px-2 py-0.5',
     },
     '2xl': {
       container: 'w-36 h-36 sm:w-44 sm:h-44',
@@ -63,15 +68,16 @@ export const CreatureAvatar: React.FC<CreatureAvatarProps> = ({
       itemWrapper: '-bottom-3 -right-3',
       paw: 'text-base -bottom-1.5 -left-2',
       glow: 'inset-3 blur-2xl opacity-60',
+      fusionBadge: 'text-sm -top-3 -right-3 px-2.5 py-0.5',
     },
   }[size];
 
-  const hasPaw = ['cat', 'dog', 'capybara', 'hamster', 'monkey', 'panda', 'fox', 'frog'].includes(petId);
+  const hasPaw = ['cat', 'dog', 'capybara', 'hamster', 'monkey', 'panda', 'fox', 'frog', 'croc', 'shark', 'axolotl', 'penguin', 'chicken'].includes(petId);
 
   return (
     <div
       className={`relative inline-flex items-center justify-center select-none ${sizeStyles.container} ${className}`}
-      title={`${creature.name} (${itemName})`}
+      title={`${creature.name} (${itemName})${isFusion ? ' • 🧬 Гипер-Фьюжн' : ''}`}
     >
       {/* Rarity colored ambient aura */}
       {showGlow && !isSilhouette && (
@@ -79,6 +85,20 @@ export const CreatureAvatar: React.FC<CreatureAvatarProps> = ({
           className={`absolute rounded-full pointer-events-none transition-all ${sizeStyles.glow}`}
           style={{ backgroundColor: rarityMeta.color }}
         />
+      )}
+
+      {/* Special Hybrid/Fusion Aura & Outline if creature is a fusion */}
+      {isFusion && !isSilhouette && (
+        <div className="absolute -inset-1 rounded-full border border-purple-400/50 bg-gradient-to-tr from-purple-600/10 via-pink-500/10 to-amber-400/15 pointer-events-none shadow-[0_0_10px_rgba(168,85,247,0.3)] animate-pulse" />
+      )}
+
+      {/* Mini floating DNA badge for fusions */}
+      {isFusion && !isSilhouette && size !== 'sm' && (
+        <div
+          className={`absolute z-30 bg-purple-950/95 text-purple-200 border border-purple-400/80 rounded-full font-black flex items-center gap-0.5 shadow-md pointer-events-none ${sizeStyles.fusionBadge}`}
+        >
+          <span>🧬</span>
+        </div>
       )}
 
       {/* Silhouette wrapper or Normal character body */}

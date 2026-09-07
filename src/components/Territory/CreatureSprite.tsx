@@ -111,10 +111,23 @@ export const CreatureSprite: React.FC<CreatureSpriteProps> = ({ placed, onSelect
         <CreatureAvatar creature={creature} size="lg" showGlow={true} />
 
         {/* Compact docked level & name pill directly under the pet */}
-        <div className="mt-0.5 bg-slate-900/95 backdrop-blur-sm border border-slate-700/80 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 max-w-[95px] truncate tracking-tight z-20">
-          <span className="text-amber-400 font-black text-[9px] bg-slate-950 px-1 py-0.2 rounded border border-amber-400/30">
+        <div
+          className={`mt-0.5 backdrop-blur-sm text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 max-w-[105px] truncate tracking-tight z-20 ${
+            creature.isFusion
+              ? 'bg-purple-950/95 border border-purple-400/80 shadow-purple-500/25'
+              : 'bg-slate-900/95 border border-slate-700/80'
+          }`}
+        >
+          <span
+            className={`font-black text-[9px] px-1 py-0.2 rounded ${
+              creature.isFusion
+                ? 'bg-purple-900 text-amber-300 border border-purple-400/40'
+                : 'bg-slate-950 text-amber-400 border border-amber-400/30'
+            }`}
+          >
             Ур.{placed.level}
           </span>
+          {creature.isFusion && <span className="text-[8px] leading-none">🧬</span>}
           <span className="truncate">{creature.name}</span>
         </div>
       </div>

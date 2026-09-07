@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { BookOpen, Check, HelpCircle, Lock, Sparkles } from 'lucide-react';
-import { CREATURES, INGREDIENTS, RARITY_CONFIG } from '../../data/gameData';
+import { BookOpen, Check, Dna, HelpCircle, Lock, Sparkles } from 'lucide-react';
+import { CREATURES, getItemMeta, INGREDIENTS, RARITY_CONFIG } from '../../data/gameData';
 import { useGame } from '../../context/GameContext';
 import { Creature, Rarity } from '../../types/game';
 import { soundManager } from '../../utils/audio';
@@ -8,13 +8,23 @@ import { CreatureAvatar } from '../Creatures/CreatureAvatar';
 
 export const MemedexView: React.FC = () => {
   const { discoveredCreatures, placedCreatures, backpackCreatures, setActiveTab } = useGame();
-  const [selectedRarity, setSelectedRarity] = useState<'all' | Rarity>('all');
+  const [selectedRarity, setSelectedRarity] = useState<'all' | 'fusions' | Rarity>('all');
   const [inspectCreature, setInspectCreature] = useState<Creature | null>(null);
 
-  const rarities: ('all' | Rarity)[] = ['all', 'common', 'uncommon', 'rare', 'epic', 'legendary', 'secret'];
+  const rarities: ('all' | 'fusions' | Rarity)[] = [
+    'all',
+    'fusions',
+    'common',
+    'uncommon',
+    'rare',
+    'epic',
+    'legendary',
+    'secret',
+  ];
 
   // Filter creatures
   const filteredCreatures = CREATURES.filter((c) => {
+    if (selectedRarity === 'fusions') return c.isFusion;
     if (selectedRarity !== 'all' && c.rarity !== selectedRarity) return false;
     return true;
   });
@@ -56,7 +66,8 @@ export const MemedexView: React.FC = () => {
       <div className="flex items-center gap-1.5 overflow-x-auto py-3 no-scrollbar">
         {rarities.map((r) => {
           const isAll = r === 'all';
-          const label = isAll ? 'Все' : RARITY_CONFIG[r].label;
+          const isFusionTab = r === 'fusions';
+          const label = isAll ? 'Все' : isFusionTab ? '🧬 Фьюжн' : RARITY_CONFIG[r].label;
 
           return (
             <button
@@ -65,9 +76,11 @@ export const MemedexView: React.FC = () => {
                 soundManager.playClick();
                 setSelectedRarity(r);
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all active:scale-95 ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all active:scale-95 cursor-pointer ${
                 selectedRarity === r
-                  ? 'bg-indigo-600 text-white font-black shadow-md shadow-indigo-600/30'
+                  ? isFusionTab
+                    ? 'bg-purple-600 text-white font-black shadow-md shadow-purple-600/30'
+                    : 'bg-indigo-600 text-white font-black shadow-md shadow-indigo-600/30'
                   : 'bg-slate-800/80 text-slate-400 hover:text-white border border-slate-700/60'
               }`}
             >
@@ -82,10 +95,8 @@ export const MemedexView: React.FC = () => {
         {filteredCreatures.map((creature) => {
           const isDiscovered = discoveredCreatures.includes(creature.id);
           const rarityMeta = RARITY_CONFIG[creature.rarity];
-          const isAlreadyPlaced = placedCreatures.some((pc) => pc.creatureId === creature.id);
-
-          const ing1 = INGREDIENTS.find((i) => i.id === creature.ingredients[0]);
-          const ing2 = INGREDIENTS.find((i) => i.id === creature.ingredients[1]);
+          const meta1 = getItemMeta(creature.ingredients[0]);
+          const meta2 = getItemMeta(creature.ingredients[1]);
 
           return (
             <div
@@ -102,9 +113,16 @@ export const MemedexView: React.FC = () => {
             >
               {/* Rarity Tag */}
               <div className="w-full flex justify-between items-center text-[10px] font-bold mb-1">
-                <span className={`px-2 py-0.2 rounded-full ${isDiscovered ? rarityMeta.bgBadge : 'bg-slate-800 text-slate-500'}`}>
-                  {rarityMeta.label}
-                </span>
+                <div className="flex items-center gap-1">
+                  <span className={`px-2 py-0.2 rounded-full ${isDiscovered ? rarityMeta.bgBadge : 'bg-slate-800 text-slate-500'}`}>
+                    {rarityMeta.label}
+                  </span>
+                  {creature.isFusion && isDiscovered && (
+                    <span className="px-1 py-0.2 rounded bg-purple-900/80 border border-purple-500/60 text-purple-300 text-[8px] font-black">
+                      🧬 Фьюжн
+                    </span>
+                  )}
+                </div>
                 {isDiscovered ? (
                   <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
                 ) : (
@@ -136,9 +154,9 @@ export const MemedexView: React.FC = () => {
               {/* Recipe formula or Hint */}
               {isDiscovered ? (
                 <div className="flex items-center gap-1 bg-slate-800/80 px-2 py-0.5 rounded-full text-[10px] font-bold text-slate-300 mt-1.5">
-                  <span>{ing1?.emoji}</span>
+                  <span>{meta1.emoji}</span>
                   <span>+</span>
-                  <span>{ing2?.emoji}</span>
+                  <span>{meta2.emoji}</span>
                 </div>
               ) : (
                 <p className="text-[10px] text-amber-400/90 italic mt-1.5 line-clamp-2 px-1">
@@ -160,7 +178,7 @@ export const MemedexView: React.FC = () => {
       {/* INSPECT CREATURE MODAL */}
       {inspectCreature && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in select-none"
           onClick={() => setInspectCreature(null)}
         >
           <div
@@ -175,7 +193,14 @@ export const MemedexView: React.FC = () => {
                   <CreatureAvatar creature={inspectCreature} size="xl" showGlow={true} />
                 </div>
 
-                <h2 className="text-xl font-black text-white">{inspectCreature.name}</h2>
+                <div className="flex items-center gap-1.5 justify-center flex-wrap">
+                  <h2 className="text-xl font-black text-white">{inspectCreature.name}</h2>
+                  {inspectCreature.isFusion && (
+                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-purple-900/80 border border-purple-500/60 text-purple-300">
+                      🧬 Гипер-Фьюжн
+                    </span>
+                  )}
+                </div>
                 <span
                   className={`text-xs font-black px-2.5 py-0.5 rounded-full mt-1 ${RARITY_CONFIG[inspectCreature.rarity].bgBadge}`}
                 >
@@ -185,14 +210,26 @@ export const MemedexView: React.FC = () => {
                 {/* Recipe */}
                 <div className="bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 mt-3 w-full">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    РЕЦЕПТ СЛИЯНИЯ:
+                    {inspectCreature.isFusion ? 'ФОРМУЛА СКРЕЩИВАНИЯ (ФЬЮЖН):' : 'РЕЦЕПТ СЛИЯНИЯ:'}
                   </span>
-                  <div className="flex items-center justify-center gap-2 text-sm font-black text-white mt-1">
-                    <span>{INGREDIENTS.find((i) => i.id === inspectCreature.ingredients[0])?.emoji}</span>
-                    <span>{INGREDIENTS.find((i) => i.id === inspectCreature.ingredients[0])?.name}</span>
-                    <span className="text-amber-400">+</span>
-                    <span>{INGREDIENTS.find((i) => i.id === inspectCreature.ingredients[1])?.emoji}</span>
-                    <span>{INGREDIENTS.find((i) => i.id === inspectCreature.ingredients[1])?.name}</span>
+                  <div className="flex items-center justify-center gap-2 text-xs font-black text-white mt-1 flex-wrap">
+                    {(() => {
+                      const m1 = getItemMeta(inspectCreature.ingredients[0]);
+                      const m2 = getItemMeta(inspectCreature.ingredients[1]);
+                      return (
+                        <>
+                          <span className="inline-flex items-center gap-1 bg-slate-900/90 px-2 py-1 rounded-xl border border-slate-700">
+                            <span>{m1.emoji}</span>
+                            <span>{m1.name}</span>
+                          </span>
+                          <span className="text-amber-400 font-black">+</span>
+                          <span className="inline-flex items-center gap-1 bg-slate-900/90 px-2 py-1 rounded-xl border border-slate-700">
+                            <span>{m2.emoji}</span>
+                            <span>{m2.name}</span>
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -227,7 +264,7 @@ export const MemedexView: React.FC = () => {
                 <button
                   id="memedex-close-inspect-btn"
                   onClick={() => setInspectCreature(null)}
-                  className="w-full mt-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 active:scale-95 transition-all"
+                  className="w-full mt-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 active:scale-95 transition-all cursor-pointer"
                 >
                   Закрыть
                 </button>
@@ -255,7 +292,7 @@ export const MemedexView: React.FC = () => {
                     setInspectCreature(null);
                     setActiveTab('lab');
                   }}
-                  className="w-full mt-4 py-3 rounded-2xl bg-indigo-600 text-white font-black text-xs sm:text-sm active:scale-95 transition-transform"
+                  className="w-full mt-4 py-3 rounded-2xl bg-indigo-600 text-white font-black text-xs sm:text-sm active:scale-95 transition-transform cursor-pointer"
                 >
                   Попробовать в Лаборатории 🧬
                 </button>

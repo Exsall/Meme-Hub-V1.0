@@ -7,7 +7,7 @@
  * случайных событий и фиче-флагов игры. Изменяйте значения прямо здесь для
  * быстрой и удобной настройки всей игровой системы.
  * 
- * Разработано командой: 3R Games
+ * Разработано командой: G3R
  * Версия: Meme Lab V 1.2
  * ==============================================================================
  */
@@ -72,6 +72,14 @@ export interface MasterGameConfig {
     adRewardCoins: number;              // Количество монет за 3-часовую награду
   };
 
+  /** Мемное Колесо Фортуны */
+  wheel: {
+    cooldownHours: number;              // Кулдаун между бесплатными вращениями (24 часа)
+    spinDurationMs: number;             // Длительность вращения анимации (мс)
+    jackpotCoins: number;               // Количество монет в джекпоте
+    jackpotXp: number;                  // Опыт в джекпоте
+  };
+
   /** Звуковые настройки по умолчанию */
   audio: {
     defaultSoundEnabled: boolean;       // Включены ли звуковые эффекты по умолчанию
@@ -88,7 +96,7 @@ export const GAME_CONFIG: MasterGameConfig = {
   meta: {
     appName: 'Meme Lab',
     version: 'V 1.2',
-    author: 'Разработано командой 3R Games',
+    author: 'Разработано командой G3R',
     description:
       'Браузерная 2D игра в жанре merge & idle simulator, где игроки комбинируют животных, фрукты и предметы для создания абсурдных мемов-существ.',
   },
@@ -109,8 +117,8 @@ export const GAME_CONFIG: MasterGameConfig = {
     happyFlaskBonusMultiplier: 1.5,
     goldenTouchClickMultiplier: 5,
     repeatMixXpBase: 5,
-    levelXpBase: 350,
-    levelXpMultiplier: 1.45,
+    levelXpBase: 750,
+    levelXpMultiplier: 1.5,
   },
 
   groundItems: {
@@ -145,7 +153,14 @@ export const GAME_CONFIG: MasterGameConfig = {
   boosters: {
     activeBoosterDurationSec: 300,    // 5 минут
     adRewardCooldownHours: 3,         // 3 часа
-    adRewardCoins: 1000,              // 1 000 монет
+    adRewardCoins: 10000,             // 10 000 монет
+  },
+
+  wheel: {
+    cooldownHours: 24,                // 24 часа
+    spinDurationMs: 4500,             // 4.5 секунды
+    jackpotCoins: 15000,              // 15 000 монет
+    jackpotXp: 1000,                  // 1 000 опыта
   },
 
   audio: {

@@ -336,6 +336,34 @@ class SoundManager {
     this.playNewMemeFanfare(true);
   }
 
+  public playWheelTick() {
+    if (!this.isSoundEnabled || this.isTemporarilyMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(800 + Math.random() * 120, now);
+      osc.frequency.exponentialRampToValueAtTime(320, now + 0.035);
+
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+      osc.connect(gain);
+      const dest = this.getMasterGain() || this.ctx.destination;
+      gain.connect(dest);
+
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } catch (e) {
+      // Audio safety
+    }
+  }
+
   public playNegativeEvent() {
     if (!this.isSoundEnabled || this.isTemporarilyMuted) return;
     this.initContext();

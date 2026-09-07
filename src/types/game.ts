@@ -20,12 +20,14 @@ export interface Creature {
   rarity: Rarity;
   emoji: string;
   visualType: string;
-  ingredients: [string, string]; // [ingredientId1, ingredientId2]
+  ingredients: [string, string]; // [ingredientId1, ingredientId2] or [creatureId1, creatureId2]
   baseIncome: number; // Coins per second at level 1
   baseUpgradePrice: number;
   maxLevel: number;
   hint: string;
   description: string;
+  isFusion?: boolean; // Indicates if this creature is a hybrid cross-breed
+  fusionParents?: [string, string]; // Creature IDs of the parent creatures
 }
 
 export interface PlacedCreature {
@@ -106,7 +108,8 @@ export interface Quest {
     | 'pet_count'
     | 'zone_count'
     | 'ad_watch'
-    | 'reach_level';
+    | 'reach_level'
+    | 'spin_wheel';
   category?: 'beginner' | 'alchemy' | 'territory' | 'master';
   icon?: string;
   reward: {
@@ -166,6 +169,10 @@ export interface PlayerSaveData {
   questProgress: Record<string, number>;
   dailyStreak: number;
   lastDailyClaimDate: string; // YYYY-MM-DD
+  lastDailyClaimTimestamp?: number;
+  wheelSpinsCount?: number; // accumulated banked wheel spins ready to be spun
+  lastWheelSpinTimestamp?: number; // timestamp in ms of last 24h wheel spin
+  lastWheelAdSpinTimestamp?: number; // timestamp in ms of last 24h ad-supported wheel spin
   lastAdRewardTimestamp?: number; // timestamp in ms when 3-hour 1000 coins free reward was claimed
   purchasedPerks?: string[]; // perk IDs (e.g., 'auto_collector', 'golden_touch')
   activeBoosters?: Record<string, number>; // boosterId -> expiry timestamp in ms
@@ -176,4 +183,24 @@ export interface PlayerSaveData {
     musicEnabled: boolean;
     volume?: number; // 0 to 100
   };
+}
+
+export interface WheelSector {
+  id: string;
+  label: string;
+  sublabel: string;
+  icon: string;
+  color: string;
+  textColor: string;
+  rarity: Rarity;
+  reward: {
+    coins?: number;
+    xp?: number;
+    ingredientId?: string;
+    ingredientCount?: number;
+    boosterId?: string;
+    boosterDurationSec?: number;
+    boxId?: string;
+  };
+  weight: number; // Probability weight for spinning
 }

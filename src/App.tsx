@@ -13,6 +13,8 @@ import { SettingsModal } from './components/SettingsModal';
 import { OfflineIncomeModal } from './components/OfflineIncomeModal';
 import { AdRewardModal } from './components/Modals/AdRewardModal';
 import { RandomEventModal } from './components/Modals/RandomEventModal';
+import { FortuneWheelNotification } from './components/FortuneWheel/FortuneWheelNotification';
+import { FortuneWheelModal } from './components/FortuneWheel/FortuneWheelModal';
 
 const GameShell: React.FC = () => {
   const {
@@ -25,6 +27,8 @@ const GameShell: React.FC = () => {
     setIsSettingsOpen,
     isAdRewardOpen,
     setIsAdRewardOpen,
+    isWheelOpen,
+    setIsWheelOpen,
     currentRandomEvent,
     dismissRandomEvent,
   } = useGame();
@@ -43,12 +47,18 @@ const GameShell: React.FC = () => {
         {activeTab === 'shop' && <ShopView />}
       </main>
 
+      {/* Floating Left Side 24h Fortune Wheel Notification (Only on Meadow/Home screen) */}
+      {activeTab === 'home' && <FortuneWheelNotification />}
+
       {/* Bottom Navigation */}
       <BottomNav />
 
       {/* Global Modals */}
       {isDailyRewardOpen && (
         <DailyRewardModal onClose={() => setIsDailyRewardOpen(false)} />
+      )}
+      {isWheelOpen && (
+        <FortuneWheelModal onClose={() => setIsWheelOpen(false)} />
       )}
       {isQuestsOpen && <QuestsModal onClose={() => setIsQuestsOpen(false)} />}
       {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}

@@ -10,7 +10,9 @@ import {
   getXpForNextLevel,
   INGREDIENTS,
   MYSTERY_BOXES,
+  pickWheelWinnerSector,
   QUESTS,
+  WHEEL_SECTORS,
   ZONES,
 } from '../data/gameData';
 import {
@@ -25,6 +27,7 @@ import {
   Quest,
   RandomEventData,
   Rarity,
+  WheelSector,
 } from '../types/game';
 import { analytics } from '../utils/analytics';
 import { soundManager } from '../utils/audio';
@@ -214,6 +217,9 @@ const sanitizeSaveData = (value: unknown): PlayerSaveData => {
     questProgress: sanitizeNumberRecord(raw.questProgress, knownQuestIds, MAX_INVENTORY_COUNT),
     dailyStreak: clampInt(raw.dailyStreak, 0, 7, 0),
     lastDailyClaimDate,
+    wheelSpinsCount: clampInt(raw.wheelSpinsCount, 0, 9999, 0),
+    lastWheelSpinTimestamp: clampInt(raw.lastWheelSpinTimestamp, 0, Date.now(), 0),
+    lastWheelAdSpinTimestamp: clampInt(raw.lastWheelAdSpinTimestamp, 0, Date.now(), 0),
     lastAdRewardTimestamp: clampInt(raw.lastAdRewardTimestamp, 0, Date.now(), 0),
     purchasedPerks: normalizeIdList(raw.purchasedPerks, knownBoosterIds).filter((id) => BOOSTERS.find((b) => b.id === id)?.type === 'permanent'),
     activeBoosters: sanitizeActiveBoosters(raw.activeBoosters),
@@ -294,6 +300,25 @@ interface GameContextType {
   claimableQuestsCount: number;
   advanceTutorial: (step: number) => void;
 
+  // 24-Hour Meme Wheel of Fortune & Accumulated Spins System
+  wheelSpinsCount: number;
+  lastWheelSpinTimestamp: number;
+  lastWheelAdSpinTimestamp: number;
+  isWheelOpen: boolean;
+  setIsWheelOpen: (open: boolean) => void;
+  canClaimDailyWheelSpin: boolean;
+  canClaimAdWheelSpin: boolean;
+  canSpinWheel: boolean; // Alias for canClaimDailyWheelSpin / has spins
+  canSpinWheelAd: boolean; // Alias for canClaimAdWheelSpin
+  canSpinWheelNow: boolean; // true if wheelSpinsCount > 0
+  getWheelCooldownRemaining: () => number;
+  getWheelAdCooldownRemaining: () => number;
+  claimDailyWheelSpin: () => boolean;
+  claimAdWheelSpin: () => boolean;
+  spinWheel: () => { sector: WheelSector; success: boolean; message?: string };
+  claimWheelReward: (sector: WheelSector) => void;
+  devAddWheelSpins: (count?: number) => void;
+
   // 3-Hour Ad Reward (1000 coins) & Ad Boosters
   lastAdRewardTimestamp: number;
   adModalConfig: AdModalConfig | null;
@@ -328,6 +353,7 @@ interface GameContextType {
   devAddCoins: (amount: number) => void;
   devGiveAllIngredients: () => void;
   devUnlockAllZones: () => void;
+  devResetWheelCooldown: () => void;
   devResetProgress: () => void;
   updateConfig: (newConfig: Partial<GameConfig>) => void;
 }
@@ -347,10 +373,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [questProgress, setQuestProgress] = useState<Record<string, number>>({});
   const [dailyStreak, setDailyStreak] = useState<number>(0);
   const [lastDailyClaimDate, setLastDailyClaimDate] = useState<string>('');
+  const [wheelSpinsCount, setWheelSpinsCount] = useState<number>(0);
+  const [lastWheelSpinTimestamp, setLastWheelSpinTimestamp] = useState<number>(0);
+  const [lastWheelAdSpinTimestamp, setLastWheelAdSpinTimestamp] = useState<number>(0);
   const [lastAdRewardTimestamp, setLastAdRewardTimestamp] = useState<number>(0);
   const [purchasedPerks, setPurchasedPerks] = useState<string[]>([]);
   const [activeBoosters, setActiveBoosters] = useState<Record<string, number>>({});
   const [adModalConfig, setAdModalConfig] = useState<AdModalConfig | null>(null);
+  const [isWheelOpen, setIsWheelOpen] = useState<boolean>(false);
 
   const openAdModal = (rewardType: 'coins' | 'booster', boosterId?: string) => {
     if (rewardType === 'booster') {
@@ -414,6 +444,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setQuestProgress(saved.questProgress);
         setDailyStreak(saved.dailyStreak);
         setLastDailyClaimDate(saved.lastDailyClaimDate);
+        setWheelSpinsCount(saved.wheelSpinsCount || 0);
+        setLastWheelSpinTimestamp(saved.lastWheelSpinTimestamp || 0);
+        setLastWheelAdSpinTimestamp(saved.lastWheelAdSpinTimestamp || 0);
         setLastAdRewardTimestamp(saved.lastAdRewardTimestamp || 0);
         setPurchasedPerks(saved.purchasedPerks || []);
         setActiveBoosters(saved.activeBoosters || {});
@@ -470,6 +503,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         questProgress,
         dailyStreak,
         lastDailyClaimDate,
+        wheelSpinsCount,
+        lastWheelSpinTimestamp,
+        lastWheelAdSpinTimestamp,
         lastAdRewardTimestamp,
         purchasedPerks,
         activeBoosters,
@@ -499,6 +535,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     questProgress,
     dailyStreak,
     lastDailyClaimDate,
+    wheelSpinsCount,
+    lastWheelSpinTimestamp,
+    lastWheelAdSpinTimestamp,
     lastAdRewardTimestamp,
     purchasedPerks,
     activeBoosters,
@@ -725,35 +764,102 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Mix operation (Server-authoritative check)
   const mixIngredients = (idA: string, idB: string) => {
-    if (!knownIngredientIds.has(idA) || !knownIngredientIds.has(idB)) {
-      return { success: false, message: '������������ �����������!' };
+    const isCreatureA = knownCreatureIds.has(idA);
+    const isCreatureB = knownCreatureIds.has(idB);
+    const isIngA = knownIngredientIds.has(idA);
+    const isIngB = knownIngredientIds.has(idB);
+
+    if ((!isIngA && !isCreatureA) || (!isIngB && !isCreatureB)) {
+      return { success: false, message: 'Неизвестный элемент для слияния!' };
     }
 
-    analytics.track('mix_started', { ingredientA: idA, ingredientB: idB });
+    analytics.track('mix_started', { itemA: idA, itemB: idB, isCreatureA, isCreatureB });
 
     const countA = inventory[idA] || 0;
     const countB = inventory[idB] || 0;
 
-    // Validate ingredient availability
-    if (idA === idB) {
-      if (countA < 2) {
-        return { success: false, message: 'Недостаточно ингредиентов для слияния!' };
+    // Validate creature backpack availability
+    const backpackCounts: Record<string, number> = {};
+    backpackCreatures.forEach((b) => {
+      backpackCounts[b.creatureId] = (backpackCounts[b.creatureId] || 0) + 1;
+    });
+
+    if (isCreatureA && isCreatureB) {
+      if (idA === idB) {
+        if ((backpackCounts[idA] || 0) < 2) {
+          return { success: false, message: 'Недостаточно таких существ в рюкзаке для слияния (нужно 2 шт.)!' };
+        }
+      } else {
+        if ((backpackCounts[idA] || 0) < 1 || (backpackCounts[idB] || 0) < 1) {
+          return { success: false, message: 'Оба существа для скрещивания должны быть в рюкзаке (не на полянке)!' };
+        }
       }
     } else {
-      if (countA < 1 || countB < 1) {
+      if (isCreatureA && (backpackCounts[idA] || 0) < 1) {
+        return { success: false, message: 'Существо должно быть в вашем рюкзаке (заберите его с полянки)!' };
+      }
+      if (isCreatureB && (backpackCounts[idB] || 0) < 1) {
+        return { success: false, message: 'Существо должно быть в вашем рюкзаке (заберите его с полянки)!' };
+      }
+    }
+
+    // Validate ingredient availability
+    if (isIngA && isIngB) {
+      if (idA === idB) {
+        if (countA < 2) {
+          return { success: false, message: 'Недостаточно ингредиентов для слияния!' };
+        }
+      } else {
+        if (countA < 1 || countB < 1) {
+          return { success: false, message: 'Недостаточно ингредиентов для слияния!' };
+        }
+      }
+    } else {
+      if (isIngA && countA < 1) {
+        return { success: false, message: 'Недостаточно ингредиентов для слияния!' };
+      }
+      if (isIngB && countB < 1) {
         return { success: false, message: 'Недостаточно ингредиентов для слияния!' };
       }
     }
 
     // Deduct ingredients
-    setInventory((prev) => {
-      const next = { ...prev };
-      next[idA] = (next[idA] || 1) - 1;
-      if (next[idA] <= 0) delete next[idA];
-      next[idB] = (next[idB] || 1) - 1;
-      if (next[idB] <= 0) delete next[idB];
-      return next;
-    });
+    if (isIngA) {
+      setInventory((prev) => {
+        const next = { ...prev };
+        next[idA] = (next[idA] || 1) - 1;
+        if (next[idA] <= 0) delete next[idA];
+        return next;
+      });
+    }
+    if (isIngB) {
+      setInventory((prev) => {
+        const next = { ...prev };
+        next[idB] = (next[idB] || 1) - 1;
+        if (next[idB] <= 0) delete next[idB];
+        return next;
+      });
+    }
+
+    // Deduct creatures from backpack (consumed in fusion!)
+    if (isCreatureA || isCreatureB) {
+      setBackpackCreatures((prev) => {
+        const next = [...prev];
+        if (isCreatureA) {
+          const idxA = next.findIndex((b) => b.creatureId === idA);
+          if (idxA !== -1) {
+            next.splice(idxA, 1);
+          }
+        }
+        if (isCreatureB) {
+          const idxB = next.findIndex((b) => b.creatureId === idB);
+          if (idxB !== -1) {
+            next.splice(idxB, 1);
+          }
+        }
+        return next;
+      });
+    }
 
     // Check recipe & compute result (exact recipe or smart dynamic mutation)
     const { creature: found, isMutation } = computeMixResult(idA, idB, discoveredCreatures);
@@ -1235,6 +1341,135 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
+  // 24-Hour Meme Wheel of Fortune methods (Accumulated Spins System)
+  const getWheelCooldownRemaining = useCallback(() => {
+    if (!lastWheelSpinTimestamp) return 0;
+    const cooldownMs = (GAME_CONFIG.wheel?.cooldownHours || 24) * 3600 * 1000;
+    const elapsedMs = Date.now() - lastWheelSpinTimestamp;
+    return Math.max(0, Math.ceil((cooldownMs - elapsedMs) / 1000));
+  }, [lastWheelSpinTimestamp]);
+
+  const canClaimDailyWheelSpin = useMemo(() => {
+    return getWheelCooldownRemaining() === 0;
+  }, [getWheelCooldownRemaining]);
+
+  const getWheelAdCooldownRemaining = useCallback(() => {
+    if (!lastWheelAdSpinTimestamp) return 0;
+    const cooldownMs = (GAME_CONFIG.wheel?.cooldownHours || 24) * 3600 * 1000;
+    const elapsedMs = Date.now() - lastWheelAdSpinTimestamp;
+    return Math.max(0, Math.ceil((cooldownMs - elapsedMs) / 1000));
+  }, [lastWheelAdSpinTimestamp]);
+
+  const canClaimAdWheelSpin = useMemo(() => {
+    return getWheelAdCooldownRemaining() === 0;
+  }, [getWheelAdCooldownRemaining]);
+
+  // Overall indicator: ready if can claim or if has banked spins
+  const canSpinWheel = useMemo(() => {
+    return canClaimDailyWheelSpin || wheelSpinsCount > 0;
+  }, [canClaimDailyWheelSpin, wheelSpinsCount]);
+
+  const canSpinWheelAd = useMemo(() => {
+    return canClaimAdWheelSpin;
+  }, [canClaimAdWheelSpin]);
+
+  const canSpinWheelNow = useMemo(() => {
+    return wheelSpinsCount > 0;
+  }, [wheelSpinsCount]);
+
+  // Claim Daily Free Spin (+1 Spin)
+  const claimDailyWheelSpin = useCallback((): boolean => {
+    if (!canClaimDailyWheelSpin && !isAdminToolsEnabled()) return false;
+    const now = Date.now();
+    setLastWheelSpinTimestamp(now);
+    setWheelSpinsCount((prev) => clampInt(prev + 1, 0, 9999, 0));
+    soundManager.playUpgrade();
+    soundManager.playNewMemeFanfare(false);
+    analytics.track('wheel_daily_spin_claimed', { timestamp: now });
+    return true;
+  }, [canClaimDailyWheelSpin]);
+
+  // Claim Ad Bonus Spin (+1 Spin)
+  const claimAdWheelSpin = useCallback((): boolean => {
+    if (!canClaimAdWheelSpin && !isAdminToolsEnabled()) return false;
+    const now = Date.now();
+    setLastWheelAdSpinTimestamp(now);
+    setWheelSpinsCount((prev) => clampInt(prev + 1, 0, 9999, 0));
+    updateQuestCounter('ad_watch', 1);
+    soundManager.playUpgrade();
+    soundManager.playNewMemeFanfare(false);
+    analytics.track('wheel_ad_spin_claimed', { timestamp: now });
+    return true;
+  }, [canClaimAdWheelSpin]);
+
+  // Spin the wheel using 1 accumulated spin
+  const spinWheel = useCallback((): { sector: WheelSector; success: boolean; message?: string } => {
+    if (wheelSpinsCount <= 0 && !isAdminToolsEnabled()) {
+      return { sector: WHEEL_SECTORS[0], success: false, message: 'У вас нет накопленных прокрутов! Заберите бесплатный спин или посмотрите рекламу.' };
+    }
+    // Deduct 1 spin
+    setWheelSpinsCount((prev) => Math.max(0, prev - 1));
+    const winner = pickWheelWinnerSector();
+    return { sector: winner, success: true };
+  }, [wheelSpinsCount]);
+
+  // Claim the reward won from a wheel spin
+  const claimWheelReward = useCallback((sector: WheelSector) => {
+    const { reward } = sector;
+
+    if (reward.coins) {
+      setCoins((prev) => clampCoins(prev + reward.coins!));
+    }
+    if (reward.xp) {
+      addXp(reward.xp!);
+    }
+    if (reward.ingredientId && reward.ingredientCount) {
+      const ingId = reward.ingredientId;
+      const count = reward.ingredientCount;
+      setInventory((prev) => ({
+        ...prev,
+        [ingId]: clampInt((prev[ingId] || 0) + count, 0, MAX_INVENTORY_COUNT, 0),
+      }));
+    }
+    if (reward.boosterId) {
+      const boosterId = reward.boosterId;
+      const durationMs = (reward.boosterDurationSec || 600) * 1000;
+      setActiveBoosters((prev) => {
+        const currentExpiry = prev[boosterId] || 0;
+        const baseTime = currentExpiry > Date.now() ? currentExpiry : Date.now();
+        return {
+          ...prev,
+          [boosterId]: clampInt(baseTime + durationMs, Date.now(), Date.now() + MAX_ACTIVE_BOOSTER_MS, Date.now()),
+        };
+      });
+    }
+    if (reward.boxId) {
+      const pool = INGREDIENTS.filter((i) => i.rarity === 'rare' || i.rarity === 'epic');
+      for (let i = 0; i < 2; i++) {
+        const item = pool[Math.floor(Math.random() * pool.length)] || INGREDIENTS[0];
+        setInventory((prev) => ({
+          ...prev,
+          [item.id]: clampInt((prev[item.id] || 0) + 1, 0, MAX_INVENTORY_COUNT, 0),
+        }));
+      }
+    }
+
+    updateQuestCounter('spin_wheel', 1);
+    soundManager.playCoin();
+    analytics.track('wheel_spin_claimed', { sectorId: sector.id, rarity: sector.rarity });
+  }, [addXp]);
+
+  const devAddWheelSpins = useCallback((count = 5) => {
+    setWheelSpinsCount((prev) => clampInt(prev + count, 0, 9999, 0));
+  }, []);
+
+  const devResetWheelCooldown = () => {
+    if (!isAdminToolsEnabled()) return;
+    setLastWheelSpinTimestamp(0);
+    setLastWheelAdSpinTimestamp(0);
+    soundManager.playUpgrade();
+  };
+
   const dismissRandomEvent = useCallback(() => {
     setCurrentRandomEvent(null);
   }, []);
@@ -1452,6 +1687,23 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getQuestCurrentProgress,
         claimableQuestsCount,
         advanceTutorial,
+        wheelSpinsCount,
+        lastWheelSpinTimestamp,
+        lastWheelAdSpinTimestamp,
+        isWheelOpen,
+        setIsWheelOpen,
+        canClaimDailyWheelSpin,
+        canClaimAdWheelSpin,
+        canSpinWheel,
+        canSpinWheelAd,
+        canSpinWheelNow,
+        getWheelCooldownRemaining,
+        getWheelAdCooldownRemaining,
+        claimDailyWheelSpin,
+        claimAdWheelSpin,
+        spinWheel,
+        claimWheelReward,
+        devAddWheelSpins,
         lastAdRewardTimestamp,
         adModalConfig,
         openAdModal,
@@ -1477,6 +1729,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         devAddCoins,
         devGiveAllIngredients,
         devUnlockAllZones,
+        devResetWheelCooldown,
         devResetProgress,
         updateConfig,
       }}

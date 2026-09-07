@@ -16,6 +16,10 @@ export const TopBar: React.FC = () => {
     setIsQuestsOpen,
     setIsSettingsOpen,
     setIsAdRewardOpen,
+    setIsWheelOpen,
+    wheelSpinsCount,
+    canClaimDailyWheelSpin,
+    canClaimAdWheelSpin,
     getAdCooldownRemaining,
     lastDailyClaimDate,
     claimableQuestsCount,
@@ -83,6 +87,32 @@ export const TopBar: React.FC = () => {
 
         {/* Right: Quick triggers */}
         <div className="flex items-center gap-1.5 shrink-0">
+          {/* Wheel of fortune button */}
+          <button
+            id="topbar-wheel-btn"
+            onClick={() => {
+              soundManager.playClick();
+              setIsWheelOpen(true);
+            }}
+            className={`relative p-2 rounded-xl border transition-all active:scale-95 flex items-center justify-center ${
+              wheelSpinsCount > 0
+                ? 'bg-amber-500/30 border-amber-400 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.6)] animate-pulse'
+                : canClaimDailyWheelSpin || canClaimAdWheelSpin
+                ? 'bg-amber-500/20 border-amber-400 text-amber-300'
+                : 'bg-slate-800/70 border-slate-700 text-slate-400'
+            }`}
+            title={`Мемное Колесо Фортуны (${wheelSpinsCount} спинов в копилке)`}
+          >
+            <span className="text-sm leading-none">🎡</span>
+            {wheelSpinsCount > 0 ? (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 text-[9px] font-black bg-amber-400 text-slate-950 rounded-full flex items-center justify-center ring-1 ring-slate-950 shadow">
+                {wheelSpinsCount}
+              </span>
+            ) : (canClaimDailyWheelSpin || canClaimAdWheelSpin) && (
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-slate-900 animate-ping" />
+            )}
+          </button>
+
           {/* Daily reward button */}
           <button
             id="topbar-daily-btn"
@@ -125,7 +155,7 @@ export const TopBar: React.FC = () => {
             )}
           </button>
 
-          {/* Watch Ad for 1,000 Coins */}
+          {/* Watch Ad for 10,000 Coins */}
           <button
             id="topbar-ad-btn"
             onClick={() => {
@@ -137,12 +167,12 @@ export const TopBar: React.FC = () => {
                 ? 'bg-amber-500/25 border-amber-400 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.4)] animate-pulse'
                 : 'bg-slate-800/70 border-slate-700 text-slate-400'
             }`}
-            title={canClaimAd ? 'Смотри рекламу: получи 1 000 монет!' : `Реклама за 1 000 монет: доступна через ${Math.ceil(adCooldownSec / 60)} мин`}
+            title={canClaimAd ? 'Смотри рекламу: получи 10 000 монет!' : `Реклама за 10 000 монет: доступна через ${Math.ceil(adCooldownSec / 60)} мин`}
           >
             <Tv className="w-4 h-4" />
             {canClaimAd ? (
               <span className="absolute -top-1.5 -right-1 px-1 bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 font-black text-[8px] rounded-full shadow border border-amber-200">
-                +1000
+                +10k
               </span>
             ) : (
               <span className="absolute -bottom-1 -right-1 text-[8px] font-mono font-bold bg-slate-950/90 text-slate-400 px-1 rounded-full border border-slate-700">

@@ -163,9 +163,16 @@ export const InventoryView: React.FC = () => {
                   >
                     {/* Top badges: Level & Rarity */}
                     <div className="w-full flex justify-between items-center text-[10px] font-bold mb-1">
-                      <span className={`px-2 py-0.5 rounded-full ${rarityMeta.bgBadge}`}>
-                        {rarityMeta.label}
-                      </span>
+                      <div className="flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded-full ${rarityMeta.bgBadge}`}>
+                          {rarityMeta.label}
+                        </span>
+                        {creature.isFusion && (
+                          <span className="px-1 py-0.2 rounded bg-purple-900/80 border border-purple-500/60 text-purple-300 text-[8px] font-black">
+                            🧬 Фьюжн
+                          </span>
+                        )}
+                      </div>
                       <span className="bg-slate-950 text-amber-400 font-black px-2 py-0.5 rounded-full border border-slate-800">
                         Ур. {item.level}
                       </span>

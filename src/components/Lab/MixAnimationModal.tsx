@@ -121,7 +121,12 @@ export const MixAnimationModal: React.FC<MixAnimationModalProps> = ({
                   <span>НОВЫЙ МЕМ!</span>
                 </div>
               )}
-              {isMutation ? (
+              {creature.isFusion ? (
+                <div className="inline-flex items-center gap-1 bg-gradient-to-r from-purple-950 to-pink-950 border border-purple-400 text-purple-200 font-black text-xs px-2.5 py-1 rounded-full shadow-md shadow-purple-500/20">
+                  <span>🧬</span>
+                  <span>ГИПЕР-ФЬЮЖН</span>
+                </div>
+              ) : isMutation ? (
                 <div className="inline-flex items-center gap-1 bg-purple-950 border border-purple-500 text-purple-200 font-black text-xs px-2.5 py-1 rounded-full shadow-sm">
                   <span>🧪</span>
                   <span>ГЕНЕТИЧЕСКАЯ МУТАЦИЯ</span>

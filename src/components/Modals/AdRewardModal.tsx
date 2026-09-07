@@ -242,11 +242,11 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
             ) : (
               <>
                 <div className="text-3xl font-black text-amber-300 my-2 flex items-center justify-center gap-1.5 drop-shadow">
-                  <span>+1 000</span>
+                  <span>+10 000</span>
                   <span className="text-2xl">🪙</span>
                 </div>
                 <p className="text-xs text-slate-300 max-w-xs mt-1 leading-relaxed">
-                  Вы успешно посмотрели рекламный ролик спонсора и получили 1 000 золотых монет на свой баланс!
+                  Вы успешно посмотрели рекламный ролик спонсора и получили 10 000 золотых монет на свой баланс!
                 </p>
               </>
             )}
@@ -326,19 +326,19 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
             </div>
           </div>
         ) : (
-          /* REGULAR 1000 COINS AD SCREEN */
+          /* REGULAR 10000 COINS AD SCREEN */
           <div className="w-full flex flex-col items-center py-2">
             {/* Header badge */}
             <div className="inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-300 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2">
               <Tv className="w-3.5 h-3.5" />
-              <span>1 000 Монет за рекламу</span>
+              <span>10 000 Монет за рекламу</span>
             </div>
 
             <h2 className="text-2xl font-black text-white">Смотри рекламу — получай монеты!</h2>
 
             <p className="text-xs text-slate-300 mt-2 max-w-xs leading-relaxed">
               Посмотрите короткий рекламный ролик спонсора (всего 5 секунд), чтобы поддержать лабораторию и{' '}
-              <span className="text-amber-300 font-bold">гарантированно получить 1 000 золотых монет</span>!
+              <span className="text-amber-300 font-bold">гарантированно получить 10 000 золотых монет</span>!
             </p>
 
             {/* Central reward preview card */}
@@ -347,7 +347,7 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
                 📺✨
               </div>
               <div className="text-3xl font-black text-amber-300 mt-2 flex items-center justify-center gap-1.5">
-                <span>+1 000</span>
+                <span>+10 000</span>
                 <span className="text-2xl">🪙</span>
               </div>
               <div className="flex items-center gap-1.5 mt-2 bg-amber-500/15 text-amber-300 border border-amber-500/30 px-3 py-1 rounded-full text-[11px] font-bold">
@@ -383,7 +383,7 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
                   className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black text-base shadow-lg shadow-amber-500/20 hover:scale-[1.02] active:scale-98 transition-all flex items-center justify-center gap-2"
                 >
                   <Play className="w-5 h-5 fill-current" />
-                  <span>Смотреть рекламу (+1 000 🪙)</span>
+                  <span>Смотреть рекламу (+10 000 🪙)</span>
                 </button>
                 <p className="text-[11px] text-slate-400 mt-2">
                   Длительность: 5 сек • Награда мгновенно

@@ -69,6 +69,11 @@ export const CreatureModal: React.FC<CreatureModalProps> = ({
             <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${rarityMeta.bgBadge}`}>
               {rarityMeta.label}
             </span>
+            {creature.isFusion && (
+              <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-purple-900/80 border border-purple-500/60 text-purple-300">
+                🧬 Гипер-Фьюжн
+              </span>
+            )}
             <span className="text-xs text-slate-400">
               (макс. ур. {creature.maxLevel})
             </span>
