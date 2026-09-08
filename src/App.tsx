@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { GameProvider, useGame } from './context/GameContext';
 import { TopBar } from './components/TopBar';
 import { BottomNav } from './components/BottomNav';
@@ -16,6 +16,7 @@ import { RandomEventModal } from './components/Modals/RandomEventModal';
 import { FortuneWheelModal } from './components/FortuneWheel/FortuneWheelModal';
 import { LeftActionsStack } from './components/Territory/LeftActionsStack';
 import { WelcomeModal } from './components/Modals/WelcomeModal';
+import { yandexSdk } from './utils/yandexSdk';
 
 const GameShell: React.FC = () => {
   const {
@@ -32,7 +33,18 @@ const GameShell: React.FC = () => {
     setIsWheelOpen,
     currentRandomEvent,
     dismissRandomEvent,
+    isGamePaused,
   } = useGame();
+
+  // Keep Yandex GameplayAPI aligned with the same pause model used by the game
+  // itself (welcome screen, menus/modals, wheel, ads, random events, etc.).
+  useEffect(() => {
+    if (isGamePaused) {
+      yandexSdk.notifyGameplayStop();
+    } else {
+      yandexSdk.notifyGameplayStart();
+    }
+  }, [isGamePaused]);
 
   return (
     <div className="relative flex flex-col w-full h-screen max-w-2xl mx-auto bg-slate-950 overflow-hidden shadow-2xl border-x border-slate-800/60 font-['Nunito',sans-serif]">
