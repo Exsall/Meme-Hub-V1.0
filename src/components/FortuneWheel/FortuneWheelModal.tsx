@@ -88,6 +88,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
 
   // Ad playback simulation states
   const [isPlayingAd, setIsPlayingAd] = useState<boolean>(false);
+  const [isSimulatedAd, setIsSimulatedAd] = useState<boolean>(false);
   const [isAdFinished, setIsAdFinished] = useState<boolean>(false);
   const [adTimer, setAdTimer] = useState<number>(5);
   const [adSponsor, setAdSponsor] = useState(WHEEL_SPONSORS[0]);
@@ -133,7 +134,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  // Claim daily free spin
+  // Claim hourly free spin
   const handleClaimDaily = () => {
     if (!canClaimDailyWheelSpin) return;
     const success = claimDailyWheelSpin();
@@ -155,8 +156,10 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
     if (isSpinning || (!canClaimAdWheelSpin && adCooldownSec > 0)) return;
     soundManager.playClick();
 
-    // 1. If Yandex SDK is present, show official Yandex Rewarded Video
+    // 1. If Yandex SDK is present, show official Yandex Rewarded Video.
+    // Never run the local 5-second preview timer at the same time as a real Yandex ad.
     if (yandexSdk.isAvailable()) {
+      setIsSimulatedAd(false);
       setIsPlayingAd(true);
       const res = await yandexSdk.showRewardedVideo();
       setIsPlayingAd(false);
@@ -181,14 +184,15 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
     // 2. Standalone / Preview fallback animation
     const randomSponsor = WHEEL_SPONSORS[Math.floor(Math.random() * WHEEL_SPONSORS.length)];
     setAdSponsor(randomSponsor);
+    setIsSimulatedAd(true);
     setIsPlayingAd(true);
     setIsAdFinished(false);
     setAdTimer(5);
   };
 
-  // Timer countdown while ad is playing
+  // Timer countdown only for the standalone / preview fallback ad.
   useEffect(() => {
-    if (!isPlayingAd) return;
+    if (!isPlayingAd || !isSimulatedAd) return;
 
     if (adTimer > 0) {
       const timer = setTimeout(() => {
@@ -200,11 +204,12 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
       setIsAdFinished(true);
       soundManager.playPositiveEvent();
     }
-  }, [isPlayingAd, adTimer]);
+  }, [isPlayingAd, isSimulatedAd, adTimer]);
 
-  // Claim spin after ad completion
+  // Claim spin after simulated ad completion
   const handleClaimAdSpin = () => {
     const success = claimAdWheelSpin();
+    setIsSimulatedAd(false);
     setIsPlayingAd(false);
     setIsAdFinished(false);
     if (success) {
@@ -420,7 +425,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
             <div className="flex items-center gap-2 mb-2">
               <div className="inline-flex items-center gap-1.5 bg-amber-500/15 border border-amber-500/40 text-amber-300 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5 text-yellow-400 animate-spin" style={{ animationDuration: '4s' }} />
-                <span>Колесо Фортуны (24ч)</span>
+                <span>Колесо Фортуны (1ч)</span>
               </div>
 
               {/* Shortcut to wheel achievements */}
@@ -688,7 +693,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
               </div>
             )}
 
-            {/* SPIN ACCUMULATION MODULES (Free 24h & Ad 24h) */}
+            {/* SPIN ACCUMULATION MODULES (Free 1h & Ad 1h) */}
             <div className="w-full flex flex-col gap-2 mt-2 pt-2.5 border-t border-slate-800">
               <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 px-1">
                 <span>Копилка прокрутов:</span>
@@ -696,7 +701,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {/* 1. Daily Free Spin Claim Button */}
+                {/* 1. Hourly Free Spin Claim Button */}
                 {canClaimDailyWheelSpin ? (
                   <button
                     id="claim-daily-wheel-spin-btn"
