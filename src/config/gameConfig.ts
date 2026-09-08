@@ -68,13 +68,13 @@ export interface MasterGameConfig {
   /** Бустеры и спонсорские награды */
   boosters: {
     activeBoosterDurationSec: number;   // Длительность временных бустеров (300 сек = 5 минут)
-    adRewardCooldownHours: number;      // Кулдаун бесплатной награды 1000 монет (3 часа)
-    adRewardCoins: number;              // Количество монет за 3-часовую награду
+    adRewardCooldownHours: number;      // Кулдаун награды за просмотр рекламы в часах
+    adRewardCoins: number;              // Количество монет за rewarded-рекламу
   };
 
   /** Мемное Колесо Фортуны */
   wheel: {
-    cooldownHours: number;              // Кулдаун между бесплатными вращениями (24 часа)
+    cooldownHours: number;              // Кулдаун между доступными прокрутами в часах
     spinDurationMs: number;             // Длительность вращения анимации (мс)
     jackpotCoins: number;               // Количество монет в джекпоте
     jackpotXp: number;                  // Опыт в джекпоте
@@ -152,12 +152,12 @@ export const GAME_CONFIG: MasterGameConfig = {
 
   boosters: {
     activeBoosterDurationSec: 300,    // 5 минут
-    adRewardCooldownHours: 3,         // 3 часа
+    adRewardCooldownHours: 1,         // 1 час
     adRewardCoins: 10000,             // 10 000 монет
   },
 
   wheel: {
-    cooldownHours: 24,                // 24 часа
+    cooldownHours: 1,                 // 1 час
     spinDurationMs: 4500,             // 4.5 секунды
     jackpotCoins: 15000,              // 15 000 монет
     jackpotXp: 1000,                  // 1 000 опыта
