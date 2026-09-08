@@ -59,6 +59,7 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
 
   // Ad playback states
   const [isPlayingAd, setIsPlayingAd] = useState<boolean>(false);
+  const [isSimulatedAd, setIsSimulatedAd] = useState<boolean>(false);
   const [adTimer, setAdTimer] = useState<number>(5);
   const [adFinished, setAdFinished] = useState<boolean>(false);
   const [currentSponsor, setCurrentSponsor] = useState(AD_SPONSORS[0]);
@@ -80,8 +81,11 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
     if (isPlayingAd) return;
     soundManager.playClick();
 
-    // 1. If Yandex SDK is active, launch official rewarded video
+    // 1. If Yandex SDK is active, launch official rewarded video.
+    // The local 5-second fallback timer must never run for a real Yandex ad,
+    // otherwise the same reward can be granted once by the timer and once by onRewarded.
     if (yandexSdk.isAvailable()) {
+      setIsSimulatedAd(false);
       setIsPlayingAd(true);
       const res = await yandexSdk.showRewardedVideo();
       setIsPlayingAd(false);
@@ -101,14 +105,15 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
     const randomSponsor = AD_SPONSORS[Math.floor(Math.random() * AD_SPONSORS.length)];
     setCurrentSponsor(randomSponsor);
 
+    setIsSimulatedAd(true);
     setIsPlayingAd(true);
     setAdTimer(5);
     setAdFinished(false);
   };
 
-  // Timer countdown while ad is playing
+  // Timer countdown only for the standalone / preview fallback ad.
   useEffect(() => {
-    if (!isPlayingAd) return;
+    if (!isPlayingAd || !isSimulatedAd) return;
 
     if (adTimer > 0) {
       const timer = setTimeout(() => {
@@ -116,16 +121,17 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
       }, 1000);
       return () => clearTimeout(timer);
     } else {
-      // Ad is completed!
+      // Simulated ad is completed!
       if (isBoosterAd && booster) {
         claimAdReward('booster', booster.id);
       } else {
         claimAdReward('coins');
       }
+      setIsSimulatedAd(false);
       setIsPlayingAd(false);
       setAdFinished(true);
     }
-  }, [isPlayingAd, adTimer, isBoosterAd, booster, claimAdReward]);
+  }, [isPlayingAd, isSimulatedAd, adTimer, isBoosterAd, booster, claimAdReward]);
 
   const formatTimer = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -211,7 +217,7 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
                     {booster.emoji} {booster.name} (+5 мин)
                   </span>
                 ) : (
-                  <span className="text-amber-300 font-black">+1 000 🪙</span>
+                  <span className="text-amber-300 font-black">+10 000 🪙</span>
                 )}
               </div>
             </div>
@@ -390,7 +396,7 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
                   className="w-full py-3.5 rounded-2xl bg-slate-800 text-slate-500 font-black text-sm cursor-not-allowed border border-slate-700/50 flex items-center justify-center gap-2"
                 >
                   <Clock className="w-4 h-4" />
-                  <span>Перезарядка (доступно раз в 3 часа)</span>
+                  <span>Перезарядка (доступно раз в 1 час)</span>
                 </button>
               </div>
             ) : (
@@ -404,7 +410,7 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
                   <span>Смотреть рекламу (+10 000 🪙)</span>
                 </button>
                 <p className="text-[11px] text-slate-400 mt-2">
-                  Длительность: 5 сек • Награда мгновенно
+                  Длительность: 5 сек • Награда мгновенно • Доступно раз в час
                 </p>
               </div>
             )}
