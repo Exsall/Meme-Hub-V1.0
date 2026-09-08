@@ -50,6 +50,7 @@ if (failures.length === 0) {
 
   if (indexHtml) {
     assert(indexHtml.includes('src="/sdk.js"'), 'dist/index.html must load the Yandex SDK from /sdk.js.');
+    assert(indexHtml.includes('YaGames.init()'), 'dist/index.html must explicitly initialize the Yandex SDK with YaGames.init().');
     assert(!indexHtml.includes('yandex.ru/games/sdk/v2'), 'Legacy Yandex SDK loader is still present.');
     assert(!indexHtml.includes('fonts.googleapis.com'), 'External Google Fonts request is present in the production HTML.');
     assert(!indexHtml.includes('fonts.gstatic.com'), 'External Google Fonts asset host is present in the production HTML.');
@@ -100,5 +101,6 @@ console.log('\n✅ Yandex Games release validation passed.');
 notes.forEach((note) => console.log(`  - ${note}`));
 console.log('  - dist/index.html is at ZIP root');
 console.log('  - SDK loader: /sdk.js');
+console.log('  - SDK bootstrap: YaGames.init() is explicit in index.html');
 console.log('  - production admin/analytics flags are disabled');
 console.log('  - archive paths are ASCII/no-whitespace and source maps are disabled\n');
