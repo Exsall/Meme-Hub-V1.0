@@ -12,7 +12,10 @@ export const TerritoryEnvironment: React.FC<TerritoryEnvironmentProps> = ({
   children,
 }) => {
   const currentZone = ZONES.find((z) => z.id === zoneId) || ZONES[0];
-  const bgImage = currentZone.backgroundImage || '/assets/cartoon_meadow.svg';
+  const rawBackgroundImage = currentZone.backgroundImage || './assets/cartoon_meadow.png';
+  // Yandex archive games can be hosted under a nested path, so public assets must
+  // resolve relative to index.html instead of from the domain root.
+  const bgImage = rawBackgroundImage.startsWith('/') ? `.${rawBackgroundImage}` : rawBackgroundImage;
 
   return (
     <div className="relative w-full h-full min-h-[540px] flex-1 overflow-hidden select-none bg-slate-950 transition-all duration-700">
