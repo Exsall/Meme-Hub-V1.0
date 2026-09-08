@@ -8,7 +8,7 @@
  * быстрой и удобной настройки всей игровой системы.
  * 
  * Разработано командой: G3R
- * Версия: Meme Lab V 1.2
+ * Версия: Meme Lab V 1.0
  * ==============================================================================
  */
 
@@ -95,7 +95,7 @@ export interface MasterGameConfig {
 export const GAME_CONFIG: MasterGameConfig = {
   meta: {
     appName: 'Meme Lab',
-    version: 'V 1.2',
+    version: 'V 1.0',
     author: 'Разработано командой G3R',
     description:
       'Браузерная 2D игра в жанре merge & idle simulator, где игроки комбинируют животных, фрукты и предметы для создания абсурдных мемов-существ.',
