@@ -52,12 +52,8 @@ if (failures.length === 0) {
     assert(indexHtml.includes('src="/sdk.js"'), 'dist/index.html must load the Yandex SDK from /sdk.js.');
     assert(indexHtml.includes('YaGames.init()'), 'dist/index.html must explicitly initialize the Yandex SDK with YaGames.init().');
     assert(
-      indexHtml.includes('environment.i18n.lang'),
-      'dist/index.html must read ysdk.environment.i18n.lang during startup for Yandex requirement 2.14.',
-    );
-    assert(
-      indexHtml.indexOf('environment.i18n.lang') > indexHtml.indexOf('YaGames.init()'),
-      'Yandex language detection must happen after SDK initialization in the startup bootstrap.',
+      /YaGames\.init\(\)[\s\S]*?ysdk\.environment\.i18n\.lang/.test(indexHtml),
+      'dist/index.html must read ysdk.environment.i18n.lang after YaGames.init() during startup for Yandex requirement 2.14.',
     );
     assert(!indexHtml.includes('yandex.ru/games/sdk/v2'), 'Legacy Yandex SDK loader is still present.');
     assert(!indexHtml.includes('fonts.googleapis.com'), 'External Google Fonts request is present in the production HTML.');
@@ -111,6 +107,6 @@ notes.forEach((note) => console.log(`  - ${note}`));
 console.log('  - dist/index.html is at ZIP root');
 console.log('  - SDK loader: /sdk.js');
 console.log('  - SDK bootstrap: YaGames.init() is explicit in index.html');
-console.log('  - I18N: environment.i18n.lang is read during startup');
+console.log('  - I18N: ysdk.environment.i18n.lang is read during startup');
 console.log('  - production admin/analytics flags are disabled');
 console.log('  - archive paths are ASCII/no-whitespace and source maps are disabled\n');
