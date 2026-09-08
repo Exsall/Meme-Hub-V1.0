@@ -1,0 +1,46 @@
+name: Yandex Games Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-yandex-zip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck, build and validate Yandex release
+        run: npm run build:yandex
+
+      - name: Package Yandex ZIP with index.html at archive root
+        run: |
+          cd dist
+          zip -r ../meme-lab-yandex.zip .
+          cd ..
+          unzip -l meme-lab-yandex.zip | head -80
+
+      - name: Upload Yandex Games package
+        uses: actions/upload-artifact@v4
+        with:
+          name: meme-lab-yandex-${{ github.sha }}
+          path: meme-lab-yandex.zip
+          if-no-files-found: error
+          retention-days: 30
