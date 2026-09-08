@@ -55,6 +55,10 @@ if (failures.length === 0) {
       /YaGames\.init\(\)[\s\S]*?ysdk\.environment\.i18n\.lang/.test(indexHtml),
       'dist/index.html must read ysdk.environment.i18n.lang after YaGames.init() during startup for Yandex requirement 2.14.',
     );
+    assert(
+      indexHtml.includes('window.yandexSdkPromise'),
+      'dist/index.html must expose the bootstrap SDK promise so the app reuses the same SDK instance.',
+    );
     assert(!indexHtml.includes('yandex.ru/games/sdk/v2'), 'Legacy Yandex SDK loader is still present.');
     assert(!indexHtml.includes('fonts.googleapis.com'), 'External Google Fonts request is present in the production HTML.');
     assert(!indexHtml.includes('fonts.gstatic.com'), 'External Google Fonts asset host is present in the production HTML.');
@@ -87,7 +91,14 @@ try {
 try {
   const sdkSource = await readFile(path.join(ROOT, 'src/utils/yandexSdk.ts'), 'utf8');
   assert(sdkSource.includes('CLOUD_SAVE_MIN_INTERVAL_MS'), 'Cloud save throttling is missing.');
-  assert(sdkSource.includes('LoadingAPI?.ready'), 'LoadingAPI.ready integration is missing.');
+  assert(
+    sdkSource.includes('loadingApi.ready()') || sdkSource.includes('LoadingAPI?.ready'),
+    'LoadingAPI.ready integration is missing.',
+  );
+  assert(
+    sdkSource.includes('window.yandexSdkPromise'),
+    'SDK wrapper must reuse the index.html bootstrap promise instead of initializing a second SDK instance.',
+  );
   assert(sdkSource.includes("game_api_pause"), 'game_api_pause lifecycle integration is missing.');
   assert(sdkSource.includes("game_api_resume"), 'game_api_resume lifecycle integration is missing.');
   assert(sdkSource.includes('environment?.i18n?.lang'), 'SDK wrapper language fallback is missing.');
@@ -107,6 +118,8 @@ notes.forEach((note) => console.log(`  - ${note}`));
 console.log('  - dist/index.html is at ZIP root');
 console.log('  - SDK loader: /sdk.js');
 console.log('  - SDK bootstrap: YaGames.init() is explicit in index.html');
+console.log('  - SDK singleton: app reuses window.yandexSdkPromise');
+console.log('  - Game Ready: LoadingAPI.ready() is present');
 console.log('  - I18N: ysdk.environment.i18n.lang is read during startup');
 console.log('  - production admin/analytics flags are disabled');
 console.log('  - archive paths are ASCII/no-whitespace and source maps are disabled\n');
