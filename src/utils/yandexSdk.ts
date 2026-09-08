@@ -1,7 +1,6 @@
 import { soundManager } from './audio';
 
 // Yandex Games SDK typings used by Meme Lab.
-// The shapes mirror the current HTML5 SDK API while keeping the project dependency-free.
 export interface YandexPlayer {
   getUniqueID: () => string;
   getName: () => string;
@@ -71,6 +70,8 @@ declare global {
       init: () => Promise<YandexSDK>;
     };
     ysdk?: YandexSDK;
+    yandexSdkPromise?: Promise<YandexSDK | null>;
+    __YANDEX_LANGUAGE__?: string;
   }
 }
 
@@ -81,6 +82,7 @@ type PendingCloudSave = {
 
 const CLOUD_SAVE_MIN_INTERVAL_MS = 15_000;
 const CLOUD_SAVE_MAX_BYTES = 195 * 1024;
+const SDK_OPERATION_TIMEOUT_MS = 5_000;
 const SUPPORTED_LANGUAGES = new Set(['ru']);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -106,12 +108,28 @@ const getTimestamp = (data: Record<string, unknown> | null, fallback = 0): numbe
   return Number.isFinite(value) && value > 0 ? value : fallback;
 };
 
+const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> => {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+};
+
 class YandexGamesService {
   private ysdk: YandexSDK | null = null;
   private player: YandexPlayer | null = null;
   private initPromise: Promise<boolean> | null = null;
   private isPlayerGuest = true;
   private isInitialized = false;
+  private lifecycleAttached = false;
   private gameReadySent = false;
   private gameReadyScheduled = false;
   private firstGameplayInteractionArmed = false;
@@ -151,36 +169,59 @@ class YandexGamesService {
   };
 
   public async init(): Promise<boolean> {
-    if (this.isInitialized) return true;
+    if (this.isInitialized && this.ysdk) return true;
     if (this.initPromise) return this.initPromise;
 
     this.initPromise = (async () => {
       try {
-        if (typeof window === 'undefined' || !window.YaGames) {
-          console.log('[Yandex SDK] YaGames is unavailable. Standalone development mode.');
+        if (typeof window === 'undefined') return false;
+
+        // index.html starts the SDK once and exposes the exact same promise here.
+        // Reusing that instance is critical: LoadingAPI.ready() must be called on
+        // the SDK instance whose initialization is tracked by the Yandex loader.
+        let sdk: YandexSDK | null = null;
+
+        if (window.yandexSdkPromise) {
+          console.log('[Yandex SDK] Reusing bootstrap SDK promise from index.html.');
+          sdk = await window.yandexSdkPromise;
+        } else if (window.ysdk) {
+          console.log('[Yandex SDK] Reusing existing window.ysdk instance.');
+          sdk = window.ysdk;
+        } else if (window.YaGames) {
+          console.log('[Yandex SDK] Bootstrap promise missing; initializing SDK once as fallback.');
+          window.yandexSdkPromise = window.YaGames.init().catch((error) => {
+            console.error('[Yandex SDK] Fallback initialization failed:', error);
+            return null;
+          });
+          sdk = await window.yandexSdkPromise;
+        }
+
+        if (!sdk) {
+          console.log('[Yandex SDK] SDK unavailable. Standalone development mode.');
           return false;
         }
 
-        console.log('[Yandex SDK] Initializing SDK...');
-        const sdk = await window.YaGames.init();
         this.ysdk = sdk;
         window.ysdk = sdk;
-
         this.applyLanguageFromSdk();
         this.attachLifecycleListeners();
 
         try {
-          this.player = await sdk.getPlayer({ scopes: false });
+          this.player = await withTimeout(
+            sdk.getPlayer({ scopes: false }),
+            SDK_OPERATION_TIMEOUT_MS,
+            'Yandex getPlayer',
+          );
           this.isPlayerGuest = this.player.getMode() === 'lite';
           console.log('[Yandex SDK] Player loaded. Mode:', this.player.getMode());
         } catch (playerErr) {
-          console.warn('[Yandex SDK] Player object is unavailable:', playerErr);
+          console.warn('[Yandex SDK] Player unavailable; continuing with local save fallback:', playerErr);
           this.player = null;
           this.isPlayerGuest = true;
         }
 
         this.isInitialized = true;
-        console.log('[Yandex SDK] Successfully initialized.');
+        console.log('[Yandex SDK] Successfully initialized using bootstrap instance.');
         return true;
       } catch (err) {
         console.warn('[Yandex SDK] Initialization failed:', err);
@@ -192,7 +233,11 @@ class YandexGamesService {
   }
 
   private applyLanguageFromSdk(): void {
-    const requested = this.ysdk?.environment?.i18n?.lang?.toLowerCase() || 'ru';
+    const requested =
+      window.__YANDEX_LANGUAGE__?.toLowerCase() ||
+      this.ysdk?.environment?.i18n?.lang?.toLowerCase() ||
+      'ru';
+
     this.activeLanguage = SUPPORTED_LANGUAGES.has(requested) ? requested : 'ru';
 
     if (typeof document !== 'undefined') {
@@ -208,7 +253,8 @@ class YandexGamesService {
   }
 
   private attachLifecycleListeners(): void {
-    if (!this.ysdk || typeof window === 'undefined') return;
+    if (!this.ysdk || typeof window === 'undefined' || this.lifecycleAttached) return;
+    this.lifecycleAttached = true;
 
     this.ysdk.on?.('game_api_pause', this.pauseCallback);
     this.ysdk.on?.('game_api_resume', this.resumeCallback);
@@ -230,17 +276,24 @@ class YandexGamesService {
       }
     };
 
-    // Queue after the caller's await continuation so React can apply loaded save state first.
+    // Run after the caller's await continuation so React can apply loaded state first.
     setTimeout(sendReady, 0);
   }
 
   public notifyGameReady(): void {
     if (this.gameReadySent || !this.ysdk) return;
 
+    const loadingApi = this.ysdk.features?.LoadingAPI;
+    if (!loadingApi?.ready) {
+      this.gameReadyScheduled = false;
+      console.warn('[Yandex SDK] LoadingAPI.ready() is unavailable.');
+      return;
+    }
+
     try {
-      this.ysdk.features?.LoadingAPI?.ready();
+      loadingApi.ready();
       this.gameReadySent = true;
-      console.log('[Yandex SDK] LoadingAPI.ready() sent.');
+      console.log('[Yandex SDK] LoadingAPI.ready() sent on bootstrap SDK instance.');
       this.armGameplayOnFirstInteraction();
     } catch (error) {
       this.gameReadyScheduled = false;
@@ -275,9 +328,6 @@ class YandexGamesService {
   }
 
   public isAvailable(): boolean {
-    // Production must never fall back to simulated rewarded ads if the SDK failed.
-    // Returning true in PROD routes ad requests through the real-SDK wrapper, which
-    // safely returns failure when ysdk is missing. DEV keeps the existing mock ads.
     return this.ysdk !== null || import.meta.env.PROD;
   }
 
@@ -311,10 +361,7 @@ class YandexGamesService {
     }
   }
 
-  /**
-   * Loads both local and cloud saves and returns the newest copy.
-   * This prevents an older cloud snapshot from overwriting newer local progress.
-   */
+  /** Loads local/cloud saves and returns the newest available snapshot. */
   public async loadData(storageKey: string): Promise<Record<string, unknown> | null> {
     const localData = this.readLocalData(storageKey);
     let cloudData: Record<string, unknown> | null = null;
@@ -322,7 +369,11 @@ class YandexGamesService {
 
     try {
       if (this.player) {
-        const result = await this.player.getData([storageKey, '_lastUpdated']);
+        const result = await withTimeout(
+          this.player.getData([storageKey, '_lastUpdated']),
+          SDK_OPERATION_TIMEOUT_MS,
+          'Yandex player.getData',
+        );
         cloudData = parseStoredValue(result?.[storageKey]);
         const rawUpdated = result?.['_lastUpdated'];
         const parsedUpdated = typeof rawUpdated === 'number' ? rawUpdated : Number(rawUpdated);
@@ -341,27 +392,23 @@ class YandexGamesService {
       }
 
       if (chosen === cloudData && cloudData) {
-        // Keep the local fallback synchronized with the selected cloud snapshot.
         this.writeLocalData(storageKey, cloudData);
       } else if (chosen === localData && localData && this.player) {
-        // Local data is newer; queue it back to cloud without blocking startup.
         this.pendingCloudSave = { storageKey, data: localData };
         this.scheduleCloudSave();
       }
 
       return chosen;
     } catch (error) {
-      console.warn('[Yandex SDK] Cloud save read failed; using local fallback:', error);
+      console.warn('[Yandex SDK] Cloud save read failed/timed out; using local fallback:', error);
       return localData;
     } finally {
+      // Game Ready must not be blocked indefinitely by Player/cloud services.
       this.scheduleGameReady();
     }
   }
 
-  /**
-   * Saves locally immediately and coalesces cloud writes. The SDK limit is
-   * 100 setData calls per 5 minutes, so cloud writes are intentionally throttled.
-   */
+  /** Saves locally immediately and coalesces cloud writes. */
   public async saveData(storageKey: string, data: Record<string, unknown>): Promise<boolean> {
     this.writeLocalData(storageKey, data);
     this.pendingCloudSave = { storageKey, data };
@@ -431,7 +478,6 @@ class YandexGamesService {
       return true;
     } catch (error) {
       console.warn('[Yandex SDK] player.setData failed:', error);
-      // Preserve the newest pending snapshot for a later retry.
       if (!this.pendingCloudSave) this.pendingCloudSave = pending;
       this.scheduleCloudSave();
       return false;
