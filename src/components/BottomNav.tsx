@@ -85,7 +85,7 @@ export const BottomNav: React.FC = () => {
                   <span
                     className={`absolute -top-1.5 -right-2.5 px-1 min-w-[16px] h-4 rounded-full text-[10px] font-black flex items-center justify-center shadow-md ${
                       tab.badge === '!'
-                        ? 'bg-gradient-to-r from-red-500 to-amber-500 text-white animate-bounce'
+                        ? 'bg-gradient-to-r from-red-500 to-amber-500 text-white animate-badge-bounce'
                         : 'bg-indigo-600 text-white'
                     }`}
                   >

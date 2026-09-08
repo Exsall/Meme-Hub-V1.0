@@ -63,7 +63,7 @@ export const LeftActionsStack: React.FC = () => {
   return (
     <aside
       aria-label="Быстрые действия"
-      className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-2 sm:gap-2.5 max-h-[80vh] overflow-y-auto overflow-x-hidden p-1 py-1.5 select-none pointer-events-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-3 max-h-[80vh] overflow-y-auto overflow-x-visible p-2 py-3 select-none pointer-events-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
     >
       {/* 1. LAB BUTTON (Flask Icon) */}
       <button
@@ -87,9 +87,9 @@ export const LeftActionsStack: React.FC = () => {
           <span className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-300 opacity-75 blur-sm animate-pulse group-hover:opacity-100 transition-opacity pointer-events-none" />
         )}
 
-        {/* Badge indicator if ready to mix */}
+        {/* Badge indicator if ready to mix - safe position without clipping */}
         {(canMix || tutorialStep === 0) && (
-          <span className="absolute -top-1.5 -right-1.5 z-20 flex h-4 sm:h-5 min-w-[16px] sm:min-w-[20px] px-1 items-center justify-center rounded-full bg-emerald-600 text-white text-[9px] sm:text-[10px] font-black shadow-md border-2 border-white animate-bounce pointer-events-none">
+          <span className="absolute -top-1.5 -right-1.5 z-20 flex h-4 sm:h-5 min-w-[16px] sm:min-w-[20px] px-1 items-center justify-center rounded-full bg-emerald-600 text-white text-[9px] sm:text-[10px] font-black shadow-md border-2 border-white animate-badge-bounce pointer-events-none">
             !
           </span>
         )}
@@ -132,7 +132,7 @@ export const LeftActionsStack: React.FC = () => {
           <span className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-300 opacity-75 blur-sm animate-pulse group-hover:opacity-100 transition-opacity pointer-events-none" />
 
           {/* Badge count indicator */}
-          <span className="absolute -top-1.5 -right-1.5 z-20 flex h-4 sm:h-5 min-w-[16px] sm:min-w-[20px] px-1 items-center justify-center rounded-full bg-red-600 text-white text-[9px] sm:text-[10px] font-black shadow-md border-2 border-white animate-bounce pointer-events-none">
+          <span className="absolute -top-1.5 -right-1.5 z-20 flex h-4 sm:h-5 min-w-[16px] sm:min-w-[20px] px-1 items-center justify-center rounded-full bg-red-600 text-white text-[9px] sm:text-[10px] font-black shadow-md border-2 border-white animate-badge-bounce pointer-events-none">
             {hasBankedSpins ? `${wheelSpinsCount}` : '!'}
           </span>
 

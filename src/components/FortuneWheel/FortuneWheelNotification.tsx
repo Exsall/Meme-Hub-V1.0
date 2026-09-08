@@ -71,7 +71,7 @@ export const FortuneWheelNotification: React.FC = () => {
           <span className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-300 opacity-75 blur-sm animate-pulse group-hover:opacity-100 transition-opacity" />
 
           {/* Badge count indicator */}
-          <span className="absolute -top-1.5 -right-1.5 z-20 flex h-5 min-w-[20px] px-1 items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-black shadow-md border-2 border-white animate-bounce">
+          <span className="absolute -top-1.5 -right-1.5 z-20 flex h-5 min-w-[20px] px-1 items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-black shadow-md border-2 border-white animate-badge-bounce">
             {hasBankedSpins ? `${wheelSpinsCount}` : '!'}
           </span>
 
