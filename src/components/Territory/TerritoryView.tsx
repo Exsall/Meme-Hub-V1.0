@@ -66,7 +66,7 @@ export const TerritoryView: React.FC = () => {
 
   const zoneIcons: Record<number, string> = {
     1: '🌱',
-    2: '🏖️',
+    2: '🏝️',
     3: '🌆',
     4: '🌋',
     5: '🌌',
@@ -74,7 +74,7 @@ export const TerritoryView: React.FC = () => {
 
   const zoneShortNames: Record<number, string> = {
     1: 'Поляна',
-    2: 'Пляж',
+    2: 'Остров',
     3: 'Кибер',
     4: 'Лава',
     5: 'Космос',
@@ -101,26 +101,26 @@ export const TerritoryView: React.FC = () => {
 
   return (
     <div className="relative w-full h-full min-h-[calc(100vh-120px)] flex flex-col justify-between overflow-hidden select-none bg-slate-950">
-      {/* TOP HEADER: CREATURE CAPACITY PILL (Leaving top area and Laboratory unblocked) */}
-      <div className="absolute top-3 left-3 z-30 pointer-events-none">
-        <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-slate-700/80 shadow-lg">
-          <span className="text-xs font-black text-slate-200">
+      {/* TOP HEADER: CREATURE CAPACITY PILL */}
+      <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-30 pointer-events-none">
+        <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 bg-slate-900/90 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl sm:rounded-2xl border border-slate-700/80 shadow-lg">
+          <span className="text-[11px] sm:text-xs font-black text-slate-200">
             🐾 <span className="hidden sm:inline">Существа: </span>
             <span className="text-amber-400 font-black">{placedCreatures.length}</span>/{maxCreatureCapacity}
           </span>
-          <span className="text-[10px] text-slate-400 hidden sm:inline">
+          <span className="text-[10px] text-slate-400 hidden md:inline">
             ({unlockedZones.length}/5 зон)
           </span>
           {placedCreatures.length >= maxCreatureCapacity && (
-            <span className="text-[10px] bg-red-900/60 text-red-300 font-bold px-1.5 py-0.5 rounded-full border border-red-500/40 animate-pulse">
-              {maxCreatureCapacity >= 25 ? 'Максимум 25' : 'Лимит • Открой зону (+5 мест)'}
+            <span className="text-[9px] sm:text-[10px] bg-red-900/80 text-red-200 font-bold px-1.5 py-0.2 rounded-full border border-red-500/40 animate-pulse">
+              Лимит
             </span>
           )}
         </div>
       </div>
 
-      {/* TOP-RIGHT: X2 AD BUTTON & ACTIVE BUFFS/DEBUFFS (Stacks vertically downwards) */}
-      <div className="absolute top-3 right-3 z-30 flex flex-col items-end gap-2 pointer-events-none">
+      {/* TOP-RIGHT: X2 AD BUTTON & ACTIVE BUFFS/DEBUFFS */}
+      <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-30 flex flex-col items-end gap-1.5 pointer-events-none max-w-[50%]">
         {/* Double Income booster button */}
         <button
           id="territory-double-income-ad-btn"
@@ -128,7 +128,7 @@ export const TerritoryView: React.FC = () => {
             soundManager.playClick();
             openAdModal('booster', 'double_income');
           }}
-          className={`pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black shadow-lg active:scale-95 transition-all ${
+          className={`pointer-events-auto flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black shadow-lg active:scale-95 transition-all ${
             doubleIncomeTime > 0
               ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 border border-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.4)]'
               : 'bg-slate-900/90 hover:bg-slate-850 text-amber-300 border border-amber-500/50 shadow-md animate-pulse'
@@ -139,50 +139,50 @@ export const TerritoryView: React.FC = () => {
               : 'Посмотри рекламу и удвой доход на 5 минут!'
           }
         >
-          <span className="text-sm">⚡</span>
+          <span className="text-xs sm:text-sm leading-none">⚡</span>
           {doubleIncomeTime > 0 ? (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 font-mono">
               <span className="font-black">x2</span>
-              <span className="font-mono text-[11px] font-black">{formatTimerMinSec(doubleIncomeTime)}</span>
+              <span className="text-[10px] sm:text-[11px] font-black">{formatTimerMinSec(doubleIncomeTime)}</span>
             </div>
           ) : (
             <div className="flex items-center gap-1">
               <span className="font-black">x2 Доход</span>
-              <span className="text-[10px] bg-amber-500/20 text-amber-200 px-1.5 py-0.5 rounded-full border border-amber-400/30">
+              <span className="text-[8px] bg-amber-500/20 text-amber-200 px-1 py-0.2 rounded-full border border-amber-400/30 hidden sm:inline">
                 Реклама
               </span>
             </div>
           )}
         </button>
 
-        {/* ACTIVE BUFFS AND DEBUFFS - Stacking downwards on the right edge */}
-        <div className="flex flex-col items-end gap-1.5 pointer-events-none">
-          {/* 1. Sleepy Fog Debuff (-30% income, time stacks additively) */}
+        {/* ACTIVE BUFFS AND DEBUFFS - Compact pills */}
+        <div className="flex flex-col items-end gap-1 pointer-events-none">
+          {/* 1. Sleepy Fog Debuff */}
           {sleepyFogTime > 0 && (
             <div
               id="active-debuff-sleepy-fog"
-              className="pointer-events-auto flex items-center gap-2 bg-purple-950/95 border-2 border-purple-500/80 text-purple-200 px-3 py-1.5 rounded-2xl text-xs font-black shadow-[0_4px_16px_rgba(168,85,247,0.4)] animate-in slide-in-from-right duration-300 backdrop-blur-md"
-              title="Сонный туман: -30% к заработку! Время суммируется при повторном выпадении."
+              className="pointer-events-auto flex items-center gap-1.5 bg-purple-950/95 border border-purple-500/80 text-purple-200 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[10px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 backdrop-blur-md"
+              title="Сонный туман: -30% к заработку"
             >
-              <span className="text-base animate-pulse">💤</span>
-              <div className="flex flex-col text-right">
-                <span className="text-[10px] text-purple-300 font-bold leading-tight">Сонный туман (-30%)</span>
-                <span className="font-mono text-xs font-black text-purple-100">{formatTimerMinSec(sleepyFogTime)}</span>
+              <span className="text-xs sm:text-sm animate-pulse">💤</span>
+              <div className="flex items-center gap-1">
+                <span className="text-[9px] text-purple-300 font-bold hidden sm:inline">Туман</span>
+                <span className="font-mono text-[10px] sm:text-xs font-black text-purple-100">{formatTimerMinSec(sleepyFogTime)}</span>
               </div>
             </div>
           )}
 
-          {/* 2. Carnival Buff (x2 event income, time stacks additively) */}
+          {/* 2. Carnival Buff */}
           {eventDoubleIncomeTime > 0 && (
             <div
               id="active-buff-carnival"
-              className="pointer-events-auto flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 border border-amber-300 text-slate-950 px-3 py-1.5 rounded-2xl text-xs font-black shadow-[0_4px_16px_rgba(245,158,11,0.45)] animate-in slide-in-from-right duration-300 backdrop-blur-md"
-              title="Мемный Карнавал: x2 Доход! Время суммируется при повторном выпадении."
+              className="pointer-events-auto flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 border border-amber-300 text-slate-950 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[10px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 backdrop-blur-md"
+              title="Мемный Карнавал: x2 Доход!"
             >
-              <span className="text-base animate-bounce">🎪</span>
-              <div className="flex flex-col text-right">
-                <span className="text-[10px] text-amber-950 font-extrabold leading-tight">Карнавал (x2)</span>
-                <span className="font-mono text-xs font-black text-slate-950">{formatTimerMinSec(eventDoubleIncomeTime)}</span>
+              <span className="text-xs sm:text-sm animate-bounce">🎪</span>
+              <div className="flex items-center gap-1">
+                <span className="text-[9px] text-amber-950 font-extrabold hidden sm:inline">Карнавал</span>
+                <span className="font-mono text-[10px] sm:text-xs font-black text-slate-950">{formatTimerMinSec(eventDoubleIncomeTime)}</span>
               </div>
             </div>
           )}
@@ -195,13 +195,13 @@ export const TerritoryView: React.FC = () => {
                 soundManager.playClick();
                 openAdModal('booster', 'fast_spawn');
               }}
-              className="pointer-events-auto flex items-center gap-2 bg-blue-950/90 border border-blue-400/60 text-blue-200 px-3 py-1.5 rounded-2xl text-xs font-black shadow-lg animate-in slide-in-from-right duration-300 active:scale-95 transition-transform backdrop-blur-md"
-              title="Энергетик спавна (x3 частота). Нажми, чтобы продлить за рекламу"
+              className="pointer-events-auto flex items-center gap-1.5 bg-blue-950/90 border border-blue-400/60 text-blue-200 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[10px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 active:scale-95 transition-transform backdrop-blur-md"
+              title="Спавн x3. Нажми для продления"
             >
-              <span className="text-base">🧪</span>
-              <div className="flex flex-col text-right">
-                <span className="text-[10px] text-blue-300 font-bold leading-tight">Спавн x3</span>
-                <span className="font-mono text-xs font-black text-blue-100">{formatTimerMinSec(fastSpawnTime)}</span>
+              <span className="text-xs sm:text-sm">🧪</span>
+              <div className="flex items-center gap-1">
+                <span className="text-[9px] text-blue-300 font-bold hidden sm:inline">Спавн x3</span>
+                <span className="font-mono text-[10px] sm:text-xs font-black text-blue-100">{formatTimerMinSec(fastSpawnTime)}</span>
               </div>
             </button>
           )}
@@ -214,13 +214,13 @@ export const TerritoryView: React.FC = () => {
                 soundManager.playClick();
                 openAdModal('booster', 'super_lucky');
               }}
-              className="pointer-events-auto flex items-center gap-2 bg-emerald-950/90 border border-emerald-400/60 text-emerald-200 px-3 py-1.5 rounded-2xl text-xs font-black shadow-lg animate-in slide-in-from-right duration-300 active:scale-95 transition-transform backdrop-blur-md"
-              title="Мемная Удача (x2 Редкость). Нажми, чтобы продлить за рекламу"
+              className="pointer-events-auto flex items-center gap-1.5 bg-emerald-950/90 border border-emerald-400/60 text-emerald-200 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[10px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 active:scale-95 transition-transform backdrop-blur-md"
+              title="Удача x2. Нажми для продления"
             >
-              <span className="text-base">🍀</span>
-              <div className="flex flex-col text-right">
-                <span className="text-[10px] text-emerald-300 font-bold leading-tight">Удача x2</span>
-                <span className="font-mono text-xs font-black text-emerald-100">{formatTimerMinSec(superLuckyTime)}</span>
+              <span className="text-xs sm:text-sm">🍀</span>
+              <div className="flex items-center gap-1">
+                <span className="text-[9px] text-emerald-300 font-bold hidden sm:inline">Удача x2</span>
+                <span className="font-mono text-[10px] sm:text-xs font-black text-emerald-100">{formatTimerMinSec(superLuckyTime)}</span>
               </div>
             </button>
           )}
@@ -348,18 +348,18 @@ export const TerritoryView: React.FC = () => {
 
             {/* LOCKED ZONE UNLOCK NOTICE BANNER */}
             {nextLockedZone && (
-              <div className="pointer-events-auto flex items-center justify-between bg-slate-900/95 backdrop-blur-md border border-amber-500/40 px-3.5 py-2 rounded-2xl shadow-xl">
+              <div className="pointer-events-auto flex items-center justify-between gap-2 bg-slate-900/95 backdrop-blur-md border border-amber-500/40 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl shadow-xl">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm border border-amber-500/30 shrink-0">
-                    <Lock className="w-4 h-4" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs sm:text-sm border border-amber-500/30 shrink-0">
+                    <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="text-xs font-black text-white truncate">
                       {nextLockedZone.name}
                     </span>
-                    <span className="text-[10px] sm:text-[11px] text-amber-300 font-bold truncate flex items-center gap-1">
-                      <span>+{nextLockedZone.maxCreatures} мест для существ</span>
-                      <span className="text-slate-400 font-normal">(с {nextLockedZone.requiredLevel} ур.)</span>
+                    <span className="text-[9px] sm:text-[11px] text-amber-300 font-bold truncate flex items-center gap-1">
+                      <span>+{nextLockedZone.maxCreatures} мест</span>
+                      <span className="text-slate-400 font-normal hidden sm:inline">(с {nextLockedZone.requiredLevel} ур.)</span>
                     </span>
                   </div>
                 </div>
@@ -368,13 +368,13 @@ export const TerritoryView: React.FC = () => {
                   id={`unlock-zone-btn-${nextLockedZone.id}`}
                   onClick={() => handleUnlockZone(nextLockedZone.id)}
                   disabled={coins < nextLockedZone.price || level < nextLockedZone.requiredLevel}
-                  className={`shrink-0 px-3 py-1.5 rounded-xl font-black text-xs flex items-center gap-1 transition-all active:scale-95 shadow ${
+                  className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-xl font-black text-[11px] sm:text-xs flex items-center gap-1 transition-all active:scale-95 shadow ${
                     coins >= nextLockedZone.price && level >= nextLockedZone.requiredLevel
                       ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 hover:brightness-110'
                       : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
                   }`}
                 >
-                  <span>Открыть:</span>
+                  <span className="hidden sm:inline">Открыть:</span>
                   <span>🪙 {nextLockedZone.price.toLocaleString()}</span>
                 </button>
               </div>

@@ -15,6 +15,7 @@ import { AdRewardModal } from './components/Modals/AdRewardModal';
 import { RandomEventModal } from './components/Modals/RandomEventModal';
 import { FortuneWheelNotification } from './components/FortuneWheel/FortuneWheelNotification';
 import { FortuneWheelModal } from './components/FortuneWheel/FortuneWheelModal';
+import { WelcomeModal } from './components/Modals/WelcomeModal';
 
 const GameShell: React.FC = () => {
   const {
@@ -67,6 +68,7 @@ const GameShell: React.FC = () => {
         <RandomEventModal event={currentRandomEvent} onClose={dismissRandomEvent} />
       )}
       <OfflineIncomeModal />
+      <WelcomeModal />
     </div>
   );
 };

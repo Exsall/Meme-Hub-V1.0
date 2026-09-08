@@ -59,6 +59,7 @@ export interface Zone {
   maxCreatures: number;
   backgroundTheme: string;
   description: string;
+  backgroundImage?: string;
 }
 
 export interface MysteryBox {

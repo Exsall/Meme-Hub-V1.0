@@ -47,7 +47,7 @@ const STARTER_INVENTORY: Record<string, number> = {
   cat: 1,
 };
 
-const isAdminToolsEnabled = () => import.meta.env.DEV && GAME_CONFIG.features.enableAdminPanel;
+const isAdminToolsEnabled = () => Boolean(GAME_CONFIG.features.enableAdminPanel);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -330,6 +330,12 @@ interface GameContextType {
   isAdRewardOpen: boolean;
   setIsAdRewardOpen: (open: boolean) => void;
 
+  // Welcome modal & pause system
+  isWelcomeOpen: boolean;
+  setIsWelcomeOpen: (open: boolean) => void;
+  isGamePaused: boolean;
+  startGame: () => void;
+
   // Active view navigation
   activeTab: 'home' | 'lab' | 'inventory' | 'memedex' | 'shop';
   setActiveTab: (tab: 'home' | 'lab' | 'inventory' | 'memedex' | 'shop') => void;
@@ -351,6 +357,10 @@ interface GameContextType {
 
   // Dev tools
   devAddCoins: (amount: number) => void;
+  devAddLevel: (levelsToAdd: number) => void;
+  devSetLevel: (targetLevel: number) => void;
+  devAddXp: (amount: number) => void;
+  devUpgradeAllPlacedCreatures: () => void;
   devGiveAllIngredients: () => void;
   devUnlockAllZones: () => void;
   devResetWheelCooldown: () => void;
@@ -416,9 +426,45 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [currentRandomEvent, setCurrentRandomEvent] = useState<RandomEventData | null>(null);
 
+  // Welcome / Onboarding modal (Game starts in paused state until player starts playing)
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState<boolean>(true);
+
   // Offline earnings modal
   const [offlineEarnedCoins, setOfflineEarnedCoins] = useState<number>(0);
   const [offlineElapsedMinutes, setOfflineElapsedMinutes] = useState<number>(0);
+
+  // Dynamic pause state: whenever the player is not on the home meadow or any modal/dialog is open, the game is paused
+  const isGamePaused = useMemo(() => {
+    return (
+      isWelcomeOpen ||
+      activeTab !== 'home' ||
+      isWheelOpen ||
+      isDailyRewardOpen ||
+      isQuestsOpen ||
+      isSettingsOpen ||
+      isAdRewardOpen ||
+      currentRandomEvent !== null ||
+      offlineEarnedCoins > 0 ||
+      inspectedCreature !== null
+    );
+  }, [
+    isWelcomeOpen,
+    activeTab,
+    isWheelOpen,
+    isDailyRewardOpen,
+    isQuestsOpen,
+    isSettingsOpen,
+    isAdRewardOpen,
+    currentRandomEvent,
+    offlineEarnedCoins,
+    inspectedCreature,
+  ]);
+
+  const startGame = useCallback(() => {
+    setIsWelcomeOpen(false);
+    soundManager.playPop();
+    soundManager.playNewMemeFanfare(false);
+  }, []);
 
   // Ground items on territory
   const [groundItems, setGroundItems] = useState<GroundItem[]>([]);
@@ -584,28 +630,29 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return clampCoins(Math.round(base * mult));
   }, [placedCreatures, activeBoosters, purchasedPerks]);
 
-  // Passive income ticker (1 second tick)
+  // Passive income ticker (1 second tick) - paused when isGamePaused is true
   useEffect(() => {
-    if (totalIncomePerSec <= 0) return;
+    if (isGamePaused || totalIncomePerSec <= 0) return;
     const interval = setInterval(() => {
       setCoins((prev) => clampCoins(prev + totalIncomePerSec));
     }, 1000);
     return () => clearInterval(interval);
-  }, [totalIncomePerSec]);
+  }, [isGamePaused, totalIncomePerSec]);
 
   // Auto-collector Drone: automatically vacuums any ground items when perk is active!
   useEffect(() => {
-    if (!purchasedPerks.includes('auto_collector') || groundItems.length === 0) return;
+    if (isGamePaused || !purchasedPerks.includes('auto_collector') || groundItems.length === 0) return;
     const timer = setTimeout(() => {
       groundItems.forEach((item) => {
         collectGroundItem(item.id);
       });
     }, 600);
     return () => clearTimeout(timer);
-  }, [groundItems, purchasedPerks]);
+  }, [isGamePaused, groundItems, purchasedPerks]);
 
   // Immediate initial ground item spawn if empty so the map is never desolate
   useEffect(() => {
+    if (isGamePaused) return;
     setGroundItems((prev) => {
       if (prev.length > 0) return prev;
       const availableIngredients = ['banana', 'apple', 'strawberry', 'cat', 'dog', 'orange', 'watermelon', 'coffee'];
@@ -614,23 +661,24 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         {
           id: `item_${now}_1`,
           ingredientId: availableIngredients[Math.floor(Math.random() * availableIngredients.length)],
-          x: Math.floor(22 + Math.random() * 56),
-          y: Math.floor(28 + Math.random() * 45),
+          x: Math.floor(20 + Math.random() * 60),
+          y: Math.floor(32 + Math.random() * 44),
           spawnTime: now,
         },
         {
           id: `item_${now}_2`,
           ingredientId: availableIngredients[Math.floor(Math.random() * availableIngredients.length)],
-          x: Math.floor(22 + Math.random() * 56),
-          y: Math.floor(28 + Math.random() * 45),
+          x: Math.floor(20 + Math.random() * 60),
+          y: Math.floor(32 + Math.random() * 44),
           spawnTime: now - 3000,
         },
       ];
     });
-  }, []);
+  }, [isGamePaused]);
 
   // Map pickup spawner (8s regular, 4s with fast_spawn booster)
   useEffect(() => {
+    if (isGamePaused) return;
     const isFast = activeBoosters['fast_spawn'] && activeBoosters['fast_spawn'] > Date.now();
     const intervalSec = isFast ? 4 : 8;
 
@@ -643,7 +691,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
           ingredientId: chosen,
           x: Math.floor(18 + Math.random() * 64),
-          y: Math.floor(25 + Math.random() * 50),
+          y: Math.floor(32 + Math.random() * 44),
           spawnTime: Date.now(),
         };
         return [...prev, newItem];
@@ -651,10 +699,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, intervalSec * 1000);
 
     return () => clearInterval(spawnTimer);
-  }, [activeBoosters]);
+  }, [isGamePaused, activeBoosters]);
 
   // 15-second ground item despawn timer (items disappear after 15 seconds)
   useEffect(() => {
+    if (isGamePaused) return;
     const despawnInterval = setInterval(() => {
       const now = Date.now();
       setGroundItems((prev) => {
@@ -665,7 +714,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 500);
 
     return () => clearInterval(despawnInterval);
-  }, []);
+  }, [isGamePaused]);
 
   // XP & Level calculations
   const xpForNextLevel = useMemo(() => getXpForNextLevel(level), [level]);
@@ -922,8 +971,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       instanceId: makeInstanceId('placed'),
       creatureId,
       level: clampInt(level, 1, creature.maxLevel, 1),
-      x: Math.floor(18 + Math.random() * 64),
-      y: Math.floor(25 + Math.random() * 50),
+      x: Math.floor(16 + Math.random() * 68),
+      y: Math.floor(32 + Math.random() * 46),
       direction: Math.random() > 0.5 ? 'right' : 'left',
       currentAction: 'idle',
       placedAt: Date.now(),
@@ -976,8 +1025,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       instanceId: makeInstanceId('placed'),
       creatureId: item.creatureId,
       level: clampInt(item.level, 1, creature.maxLevel, 1),
-      x: Math.floor(18 + Math.random() * 64),
-      y: Math.floor(25 + Math.random() * 50),
+      x: Math.floor(16 + Math.random() * 68),
+      y: Math.floor(32 + Math.random() * 46),
       direction: Math.random() > 0.5 ? 'right' : 'left',
       currentAction: 'idle',
       placedAt: Date.now(),
@@ -1489,6 +1538,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     discoveredCreatures,
     setDiscoveredCreatures,
     currentRandomEvent,
+    isWelcomeOpen,
     isDailyRewardOpen,
     isQuestsOpen,
     isSettingsOpen,
@@ -1512,6 +1562,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       discoveredCreatures,
       setDiscoveredCreatures,
       currentRandomEvent,
+      isWelcomeOpen,
       isDailyRewardOpen,
       isQuestsOpen,
       isSettingsOpen,
@@ -1546,9 +1597,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentRandomEvent(eventData);
   }, []);
 
-  // Periodic unprompted random events: completely random autonomous triggers
+  // Periodic unprompted random events: completely random autonomous triggers (paused while welcome modal / game is paused)
   useEffect(() => {
-    if (!GAME_CONFIG.features.enableRandomEvents) return;
+    if (isGamePaused || !GAME_CONFIG.features.enableRandomEvents) return;
 
     let timeoutId: ReturnType<typeof setTimeout>;
     let isCancelled = false;
@@ -1558,6 +1609,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const s = stateRef.current;
       const isAnyModalOpen =
+        s.isWelcomeOpen ||
         !!s.currentRandomEvent ||
         s.isDailyRewardOpen ||
         s.isQuestsOpen ||
@@ -1565,7 +1617,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         s.isAdRewardOpen;
 
       if (isAnyModalOpen) {
-        // If another modal is currently open, retry soon (in 5 seconds) so the event is not missed
+        // If welcome modal or another modal is currently open, retry soon (in 5 seconds) so the event is not missed
         timeoutId = setTimeout(runEventCycle, 5000);
         return;
       }
@@ -1593,13 +1645,55 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isCancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [triggerRandomEvent]);
+  }, [isGamePaused, triggerRandomEvent]);
 
   // Dev tools per Section 35
   const devAddCoins = (amount: number) => {
     if (!isAdminToolsEnabled()) return;
     setCoins((prev) => clampCoins(prev + clampInt(amount, 0, MAX_COINS, 0)));
     soundManager.playCoin();
+  };
+
+  const devAddLevel = (levelsToAdd: number) => {
+    if (!isAdminToolsEnabled()) return;
+    const safeAdd = clampInt(levelsToAdd, 1, MAX_LEVEL, 1);
+    setLevel((prev) => {
+      const nextLevel = clampInt(prev + safeAdd, 1, MAX_LEVEL, MAX_LEVEL);
+      soundManager.playNewMemeFanfare(true);
+      analytics.track('level_up', { level: nextLevel, source: 'admin' });
+      return nextLevel;
+    });
+    setXp(0);
+  };
+
+  const devSetLevel = (targetLevel: number) => {
+    if (!isAdminToolsEnabled()) return;
+    const safeLevel = clampInt(targetLevel, 1, MAX_LEVEL, 1);
+    setLevel(safeLevel);
+    setXp(0);
+    soundManager.playNewMemeFanfare(true);
+    analytics.track('level_up', { level: safeLevel, source: 'admin' });
+  };
+
+  const devAddXp = (amount: number) => {
+    if (!isAdminToolsEnabled()) return;
+    addXp(clampInt(amount, 1, MAX_XP, 100));
+    soundManager.playCoin();
+  };
+
+  const devUpgradeAllPlacedCreatures = () => {
+    if (!isAdminToolsEnabled()) return;
+    setPlacedCreatures((prev) =>
+      prev.map((pc) => {
+        const creature = CREATURES.find((c) => c.id === pc.creatureId);
+        const max = creature?.maxLevel || 10;
+        return {
+          ...pc,
+          level: Math.min(max, pc.level + 1),
+        };
+      }),
+    );
+    soundManager.playUpgrade();
   };
 
   const devGiveAllIngredients = () => {
@@ -1713,6 +1807,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getAdCooldownRemaining,
         isAdRewardOpen,
         setIsAdRewardOpen,
+        isWelcomeOpen,
+        setIsWelcomeOpen,
+        isGamePaused,
+        startGame,
         activeTab,
         setActiveTab,
         inspectedCreature,
@@ -1727,6 +1825,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         dismissRandomEvent,
         triggerRandomEvent,
         devAddCoins,
+        devAddLevel,
+        devSetLevel,
+        devAddXp,
+        devUpgradeAllPlacedCreatures,
         devGiveAllIngredients,
         devUnlockAllZones,
         devResetWheelCooldown,

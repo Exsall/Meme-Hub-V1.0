@@ -3,6 +3,7 @@ import { calculateCreatureIncome, CREATURES, RARITY_CONFIG } from '../../data/ga
 import { PlacedCreature } from '../../types/game';
 import { soundManager } from '../../utils/audio';
 import { CreatureAvatar } from '../Creatures/CreatureAvatar';
+import { useGame } from '../../context/GameContext';
 
 interface CreatureSpriteProps {
   placed: PlacedCreature;
@@ -11,40 +12,58 @@ interface CreatureSpriteProps {
 }
 
 export const CreatureSprite: React.FC<CreatureSpriteProps> = ({ placed, onSelect, onPet }) => {
+  const { isGamePaused } = useGame();
   const creature = CREATURES.find((c) => c.id === placed.creatureId);
   const [posX, setPosX] = useState(placed.x);
   const [posY, setPosY] = useState(placed.y);
   const [isSquashing, setIsSquashing] = useState(false);
+  const [isWalking, setIsWalking] = useState(false);
   const [floatingTexts, setFloatingTexts] = useState<{ id: number; text: string }[]>([]);
   const [moodEmoji, setMoodEmoji] = useState<string | null>(null);
 
-  // Wandering logic without turning or inverting
+  // Normalize initial Y position across the meadow field
   useEffect(() => {
+    setPosY((prev) => Math.max(28, Math.min(82, prev)));
+    setPosX((prev) => Math.max(10, Math.min(90, prev)));
+  }, []);
+
+  // Living creature wandering logic across the field (paused if game is paused)
+  useEffect(() => {
+    if (isGamePaused) return;
+
     const wanderInterval = setInterval(() => {
-      // 40% chance to move slightly
+      // 45% chance to wander to a new spot on the field
       if (Math.random() < 0.45) {
-        const deltaX = (Math.random() - 0.5) * 8;
-        const deltaY = (Math.random() - 0.5) * 6;
+        setIsWalking(true);
+        const deltaX = (Math.random() - 0.5) * 14;
+        const deltaY = (Math.random() - 0.5) * 10;
 
-        setPosX((prev) => Math.max(10, Math.min(85, prev + deltaX)));
-        setPosY((prev) => Math.max(20, Math.min(80, prev + deltaY)));
+        setPosX((prev) => Math.max(10, Math.min(90, prev + deltaX)));
+        setPosY((prev) => Math.max(28, Math.min(82, prev + deltaY)));
 
-        // Random cute mood
-        if (Math.random() < 0.25) {
-          const moods = ['❤️', '✨', '🎵', '😋', '🔥', '⭐'];
+        setTimeout(() => setIsWalking(false), 1200);
+
+        // Random cute mood/thought bubble
+        if (Math.random() < 0.28) {
+          const moods = ['❤️', '✨', '🎵', '😋', '🔥', '⭐', '🌿', '💬', '🐾'];
           setMoodEmoji(moods[Math.floor(Math.random() * moods.length)]);
-          setTimeout(() => setMoodEmoji(null), 2500);
+          setTimeout(() => setMoodEmoji(null), 2400);
         }
       }
-    }, 3000 + Math.random() * 2000);
+    }, 3200 + Math.random() * 2200);
 
     return () => clearInterval(wanderInterval);
-  }, []);
+  }, [isGamePaused]);
 
   if (!creature) return null;
 
   const rarityMeta = RARITY_CONFIG[creature.rarity];
   const incomePerSec = calculateCreatureIncome(creature, placed.level);
+
+  // Perspective scaling and layering
+  const depthRatio = Math.max(0, Math.min(1, (posY - 28) / 54));
+  const depthScale = 0.9 + depthRatio * 0.2; // scale from 0.90 to 1.10
+  const depthZIndex = Math.round(10 + depthRatio * 15); // z-index from 10 to 25
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -68,11 +87,14 @@ export const CreatureSprite: React.FC<CreatureSpriteProps> = ({ placed, onSelect
     <div
       id={`creature-${placed.instanceId}`}
       onClick={handleClick}
-      className="absolute cursor-pointer select-none transition-all duration-1000 ease-out z-10 hover:z-20 group"
+      className={`absolute cursor-pointer select-none transition-all duration-1000 ease-out hover:brightness-110 group ${
+        isWalking ? 'animate-gentle-bounce' : ''
+      }`}
       style={{
         left: `${posX}%`,
         top: `${posY}%`,
-        transform: 'translate(-50%, -50%)',
+        transform: `translate(-50%, -50%) scale(${depthScale})`,
+        zIndex: depthZIndex,
       }}
     >
       {/* Floating text notifications (+12 🪙) */}
@@ -98,13 +120,13 @@ export const CreatureSprite: React.FC<CreatureSpriteProps> = ({ placed, onSelect
         <span>{incomePerSec}/с</span>
       </div>
 
-      {/* Ground contact shadow directly on the meadow */}
-      <div className="w-14 sm:w-16 h-3 bg-black/40 rounded-full mx-auto -mb-1 filter blur-[2px] transition-transform duration-300 group-hover:scale-125" />
+      {/* Realistic contact ground shadow firmly grounded on the terrain */}
+      <div className="w-16 h-3 bg-black/55 rounded-full mx-auto -mb-1.5 filter blur-[2px] transition-transform duration-300 group-hover:scale-125" />
 
       {/* Main creature body: always upright, NEVER flipped horizontally */}
       <div
         className={`relative flex flex-col items-center justify-center transition-transform duration-150 ${
-          isSquashing ? 'scale-x-120 scale-y-80' : 'hover:scale-110'
+          isSquashing ? 'scale-x-120 scale-y-80' : 'hover:scale-108'
         }`}
       >
         {/* Freestanding character sprite: pet holding item, NO background box */}

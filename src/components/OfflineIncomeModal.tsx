@@ -3,9 +3,9 @@ import { Clock, Sparkles, TrendingUp } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
 export const OfflineIncomeModal: React.FC = () => {
-  const { offlineEarnedCoins, offlineElapsedMinutes, claimOfflineEarnings } = useGame();
+  const { offlineEarnedCoins, offlineElapsedMinutes, claimOfflineEarnings, isWelcomeOpen } = useGame();
 
-  if (offlineEarnedCoins <= 0) return null;
+  if (offlineEarnedCoins <= 0 || isWelcomeOpen) return null;
 
   const hours = Math.floor(offlineElapsedMinutes / 60);
   const minutes = offlineElapsedMinutes % 60;

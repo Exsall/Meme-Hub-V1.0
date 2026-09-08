@@ -50,6 +50,66 @@
   animation: floatSlow 6s ease-in-out infinite;
 }
 
+@keyframes sway {
+  0%, 100% { transform: rotate(-2deg); transform-origin: bottom center; }
+  50% { transform: rotate(2.5deg); transform-origin: bottom center; }
+}
+
+@keyframes waterFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.95; transform: scale(1.04); }
+}
+
+@keyframes emberDrift {
+  0% { transform: translateY(0) translateX(0) scale(0.8); opacity: 0; }
+  30% { opacity: 0.9; }
+  70% { opacity: 0.7; }
+  100% { transform: translateY(-70px) translateX(15px) scale(1.2); opacity: 0; }
+}
+
+@keyframes sunRays {
+  0%, 100% { opacity: 0.15; transform: rotate(0deg); }
+  50% { opacity: 0.35; transform: rotate(3deg); }
+}
+
+.animate-sway {
+  animation: sway 4s ease-in-out infinite;
+}
+
+.animate-sway-slow {
+  animation: sway 6.5s ease-in-out infinite;
+}
+
+.animate-water-flow {
+  animation: waterFlow 8s ease infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3.5s ease-in-out infinite;
+}
+
+.animate-ember-1 {
+  animation: emberDrift 4s ease-out infinite;
+}
+
+.animate-ember-2 {
+  animation: emberDrift 5.5s ease-out infinite 1.8s;
+}
+
+.animate-ember-3 {
+  animation: emberDrift 4.8s ease-out infinite 3.2s;
+}
+
+.animate-sun-rays {
+  animation: sunRays 7s ease-in-out infinite;
+}
+
 /* Hide scrollbars for smooth mobile swipes */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
