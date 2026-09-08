@@ -52,16 +52,33 @@
     <!-- Yandex Games SDK. Archive builds hosted by Yandex must use /sdk.js. -->
     <script src="/sdk.js"></script>
     <script>
-      // Explicit bootstrap follows the official Yandex Games integration example.
-      // Keeping YaGames.init() visible in index.html also makes automated SDK checks reliable.
+      // Initialize Yandex SDK at startup and read environment.i18n.lang immediately.
+      // Requirement 2.14 requires SDK-based language detection during game launch,
+      // even when the game currently declares only one supported language.
       if (typeof YaGames !== 'undefined') {
-        YaGames.init()
+        window.yandexSdkPromise = YaGames.init()
           .then(function (ysdk) {
             window.ysdk = ysdk;
-            console.log('[Yandex SDK] Bootstrap initialized from index.html.');
+
+            // IMPORTANT: this access is what Yandex debug/moderation uses to verify I18N.
+            var platformLanguage = ysdk.environment.i18n.lang;
+            window.__YANDEX_LANGUAGE__ = String(platformLanguage || 'ru').toLowerCase();
+
+            // Meme Lab currently ships Russian UI only, so unsupported portal languages
+            // fall back to Russian while the original SDK language remains recorded.
+            document.documentElement.lang = 'ru';
+            document.documentElement.dataset.platformLanguage = window.__YANDEX_LANGUAGE__;
+
+            console.log(
+              '[Yandex SDK] Bootstrap initialized. Platform language:',
+              window.__YANDEX_LANGUAGE__,
+              'Active game language: ru',
+            );
+            return ysdk;
           })
           .catch(function (error) {
             console.error('[Yandex SDK] Bootstrap initialization failed:', error);
+            return null;
           });
       }
     </script>
