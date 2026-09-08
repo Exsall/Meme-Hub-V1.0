@@ -1,25 +1,14 @@
 import React from 'react';
-import {
-  Dna,
-  Sparkles,
-  Zap,
-  Radio,
-  Sun,
-  Flame,
-} from 'lucide-react';
 import { ZONES } from '../../data/gameData';
 
 interface TerritoryEnvironmentProps {
   zoneId: number;
-  onLabClick: () => void;
-  tutorialStep: number;
+  tutorialStep?: number;
   children: React.ReactNode;
 }
 
 export const TerritoryEnvironment: React.FC<TerritoryEnvironmentProps> = ({
   zoneId,
-  onLabClick,
-  tutorialStep,
   children,
 }) => {
   const currentZone = ZONES.find((z) => z.id === zoneId) || ZONES[0];
@@ -219,105 +208,6 @@ export const TerritoryEnvironment: React.FC<TerritoryEnvironmentProps> = ({
           <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent" />
         </div>
       )}
-
-      {/* =========================================================================
-          CENTRAL ALCHEMIST LABORATORY HUB BUILDING
-          ========================================================================= */}
-      <div
-        id="territory-lab-building"
-        onClick={onLabClick}
-        className={`absolute top-9 left-1/2 -translate-x-1/2 z-10 cursor-pointer group flex flex-col items-center transition-transform active:scale-95 ${
-          tutorialStep === 0 ? 'animate-pulse' : ''
-        }`}
-      >
-
-        {/* Location-Themed Laboratory Building */}
-        {zoneId === 1 && (
-          /* Fairytale Alchemist Cottage Hub */
-          <div className="relative w-32 h-26 sm:w-36 sm:h-28 rounded-3xl bg-slate-900/90 backdrop-blur-md border-2 border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.45)] flex flex-col items-center justify-center group-hover:scale-105 group-hover:border-emerald-300 transition-all">
-            {/* Glowing Potion Flask Turret */}
-            <div className="absolute -top-3.5 px-2.5 py-0.5 bg-emerald-500 text-slate-950 rounded-full font-black text-[10px] tracking-wider shadow-md border border-emerald-200 flex items-center gap-1">
-              <Sparkles className="w-2.5 h-2.5 animate-spin" />
-              <span>АЛХИМИЯ</span>
-            </div>
-            <span className="text-3xl sm:text-4xl filter drop-shadow-md group-hover:rotate-12 transition-transform">
-              🧪
-            </span>
-            <div className="mt-1 bg-emerald-950/80 border border-emerald-400/60 px-2.5 py-0.5 rounded-full text-[11px] font-black text-emerald-200 tracking-wider flex items-center gap-1">
-              <Dna className="w-3 h-3 text-emerald-400" />
-              <span>ЛАБОРАТОРИЯ</span>
-            </div>
-          </div>
-        )}
-
-        {zoneId === 2 && (
-          /* Tropical Tiki Beach Cabana Lab */
-          <div className="relative w-32 h-26 sm:w-36 sm:h-28 rounded-3xl bg-slate-900/90 backdrop-blur-md border-2 border-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.5)] flex flex-col items-center justify-center group-hover:scale-105 group-hover:border-amber-300 transition-all">
-            <div className="absolute -top-3.5 px-2.5 py-0.5 bg-amber-400 text-slate-950 rounded-full font-black text-[10px] tracking-wider shadow-md border border-amber-200 flex items-center gap-1">
-              <Sun className="w-2.5 h-2.5 animate-spin" />
-              <span>КУРОРТ</span>
-            </div>
-            <span className="text-3xl sm:text-4xl filter drop-shadow-md group-hover:rotate-12 transition-transform">
-              🍹
-            </span>
-            <div className="mt-1 bg-amber-950/80 border border-amber-400/60 px-2.5 py-0.5 rounded-full text-[11px] font-black text-amber-200 tracking-wider flex items-center gap-1">
-              <Sun className="w-3 h-3 text-amber-400" />
-              <span>ПЛЯЖНАЯ ЛАБА</span>
-            </div>
-          </div>
-        )}
-
-        {zoneId === 3 && (
-          /* Cyberpunk Matrix Lab */
-          <div className="relative w-32 h-26 sm:w-36 sm:h-28 rounded-3xl bg-slate-900/90 backdrop-blur-md border-2 border-cyan-400 shadow-[0_0_35px_rgba(6,182,212,0.6)] flex flex-col items-center justify-center group-hover:scale-105 group-hover:border-cyan-300 transition-all">
-            <div className="absolute -top-3.5 px-2.5 py-0.5 bg-cyan-400 text-slate-950 rounded-full font-black text-[10px] tracking-wider shadow-md border border-cyan-200 flex items-center gap-1">
-              <Zap className="w-2.5 h-2.5 animate-pulse" />
-              <span>НЕО-МАТРИЦА</span>
-            </div>
-            <span className="text-3xl sm:text-4xl filter drop-shadow-md group-hover:rotate-12 transition-transform">
-              🧬
-            </span>
-            <div className="mt-1 bg-cyan-950/80 border border-cyan-400/70 px-2.5 py-0.5 rounded-full text-[11px] font-black text-cyan-200 tracking-wider flex items-center gap-1 shadow-[0_0_10px_rgba(6,182,212,0.4)]">
-              <Zap className="w-3 h-3 text-cyan-400" />
-              <span>КИБЕР-РЕАКТОР</span>
-            </div>
-          </div>
-        )}
-
-        {zoneId === 4 && (
-          /* Volcanic Magma Forge Lab */
-          <div className="relative w-32 h-26 sm:w-36 sm:h-28 rounded-3xl bg-slate-900/90 backdrop-blur-md border-2 border-orange-500 shadow-[0_0_35px_rgba(249,115,22,0.6)] flex flex-col items-center justify-center group-hover:scale-105 group-hover:border-orange-300 transition-all">
-            <div className="absolute -top-3.5 px-2.5 py-0.5 bg-orange-500 text-slate-950 rounded-full font-black text-[10px] tracking-wider shadow-md border border-orange-200 flex items-center gap-1">
-              <Flame className="w-2.5 h-2.5 animate-pulse" />
-              <span>КУЗНИЦА</span>
-            </div>
-            <span className="text-3xl sm:text-4xl filter drop-shadow-md group-hover:rotate-12 transition-transform">
-              🌋
-            </span>
-            <div className="mt-1 bg-orange-950/80 border border-orange-400/70 px-2.5 py-0.5 rounded-full text-[11px] font-black text-orange-200 tracking-wider flex items-center gap-1 shadow-[0_0_10px_rgba(249,115,22,0.4)]">
-              <Flame className="w-3 h-3 text-orange-400" />
-              <span>ЛАВО-КУЗНЯ</span>
-            </div>
-          </div>
-        )}
-
-        {zoneId === 5 && (
-          /* Orbital Space Station Lab */
-          <div className="relative w-32 h-26 sm:w-36 sm:h-28 rounded-3xl bg-slate-900/90 backdrop-blur-md border-2 border-purple-400 shadow-[0_0_40px_rgba(168,85,247,0.6)] flex flex-col items-center justify-center group-hover:scale-105 group-hover:border-purple-300 transition-all">
-            <div className="absolute -top-3.5 px-2.5 py-0.5 bg-purple-400 text-slate-950 rounded-full font-black text-[10px] tracking-wider shadow-md border border-purple-200 flex items-center gap-1">
-              <Radio className="w-2.5 h-2.5 animate-spin" />
-              <span>ОРБИТАЛЬНЫЙ</span>
-            </div>
-            <span className="text-3xl sm:text-4xl filter drop-shadow-md group-hover:rotate-12 transition-transform">
-              🛰️
-            </span>
-            <div className="mt-1 bg-purple-950/80 border border-purple-400/70 px-2.5 py-0.5 rounded-full text-[11px] font-black text-purple-200 tracking-wider flex items-center gap-1 shadow-[0_0_10px_rgba(168,85,247,0.4)]">
-              <Sparkles className="w-3 h-3 text-purple-400" />
-              <span>ОРБИТА-1</span>
-            </div>
-          </div>
-        )}
-      </div>
 
       {/* RENDER ACTIVE CREATURES AND GROUND PICKUPS */}
       {children}

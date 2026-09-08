@@ -119,8 +119,8 @@ export const TerritoryView: React.FC = () => {
         </div>
       </div>
 
-      {/* TOP-RIGHT: X2 AD BUTTON & ACTIVE BUFFS/DEBUFFS */}
-      <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-30 flex flex-col items-end gap-1.5 pointer-events-none max-w-[50%]">
+      {/* TOP-RIGHT: X2 AD BUTTON & ACTIVE BUFFS/DEBUFFS (Scrollable on small height landscape) */}
+      <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-30 flex flex-col items-end gap-1 sm:gap-1.5 pointer-events-none max-w-[55%] max-h-[50vh] sm:max-h-[60vh] overflow-y-auto overflow-x-hidden p-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {/* Double Income booster button */}
         <button
           id="territory-double-income-ad-btn"
@@ -128,7 +128,7 @@ export const TerritoryView: React.FC = () => {
             soundManager.playClick();
             openAdModal('booster', 'double_income');
           }}
-          className={`pointer-events-auto flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black shadow-lg active:scale-95 transition-all ${
+          className={`pointer-events-auto shrink-0 flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-black shadow-lg active:scale-95 transition-all ${
             doubleIncomeTime > 0
               ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 border border-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.4)]'
               : 'bg-slate-900/90 hover:bg-slate-850 text-amber-300 border border-amber-500/50 shadow-md animate-pulse'
@@ -143,7 +143,7 @@ export const TerritoryView: React.FC = () => {
           {doubleIncomeTime > 0 ? (
             <div className="flex items-center gap-1 font-mono">
               <span className="font-black">x2</span>
-              <span className="text-[10px] sm:text-[11px] font-black">{formatTimerMinSec(doubleIncomeTime)}</span>
+              <span className="text-[9px] sm:text-[11px] font-black">{formatTimerMinSec(doubleIncomeTime)}</span>
             </div>
           ) : (
             <div className="flex items-center gap-1">
@@ -156,18 +156,18 @@ export const TerritoryView: React.FC = () => {
         </button>
 
         {/* ACTIVE BUFFS AND DEBUFFS - Compact pills */}
-        <div className="flex flex-col items-end gap-1 pointer-events-none">
+        <div className="flex flex-col items-end gap-1 pointer-events-none w-full">
           {/* 1. Sleepy Fog Debuff */}
           {sleepyFogTime > 0 && (
             <div
               id="active-debuff-sleepy-fog"
-              className="pointer-events-auto flex items-center gap-1.5 bg-purple-950/95 border border-purple-500/80 text-purple-200 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[10px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 backdrop-blur-md"
+              className="pointer-events-auto shrink-0 flex items-center gap-1 sm:gap-1.5 bg-purple-950/95 border border-purple-500/80 text-purple-200 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[9px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 backdrop-blur-md"
               title="Сонный туман: -30% к заработку"
             >
               <span className="text-xs sm:text-sm animate-pulse">💤</span>
               <div className="flex items-center gap-1">
                 <span className="text-[9px] text-purple-300 font-bold hidden sm:inline">Туман</span>
-                <span className="font-mono text-[10px] sm:text-xs font-black text-purple-100">{formatTimerMinSec(sleepyFogTime)}</span>
+                <span className="font-mono text-[9px] sm:text-xs font-black text-purple-100">{formatTimerMinSec(sleepyFogTime)}</span>
               </div>
             </div>
           )}
@@ -176,13 +176,13 @@ export const TerritoryView: React.FC = () => {
           {eventDoubleIncomeTime > 0 && (
             <div
               id="active-buff-carnival"
-              className="pointer-events-auto flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 border border-amber-300 text-slate-950 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[10px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 backdrop-blur-md"
+              className="pointer-events-auto shrink-0 flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 border border-amber-300 text-slate-950 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[9px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 backdrop-blur-md"
               title="Мемный Карнавал: x2 Доход!"
             >
               <span className="text-xs sm:text-sm animate-bounce">🎪</span>
               <div className="flex items-center gap-1">
                 <span className="text-[9px] text-amber-950 font-extrabold hidden sm:inline">Карнавал</span>
-                <span className="font-mono text-[10px] sm:text-xs font-black text-slate-950">{formatTimerMinSec(eventDoubleIncomeTime)}</span>
+                <span className="font-mono text-[9px] sm:text-xs font-black text-slate-950">{formatTimerMinSec(eventDoubleIncomeTime)}</span>
               </div>
             </div>
           )}
@@ -195,13 +195,13 @@ export const TerritoryView: React.FC = () => {
                 soundManager.playClick();
                 openAdModal('booster', 'fast_spawn');
               }}
-              className="pointer-events-auto flex items-center gap-1.5 bg-blue-950/90 border border-blue-400/60 text-blue-200 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[10px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 active:scale-95 transition-transform backdrop-blur-md"
+              className="pointer-events-auto shrink-0 flex items-center gap-1 sm:gap-1.5 bg-blue-950/90 border border-blue-400/60 text-blue-200 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[9px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 active:scale-95 transition-transform backdrop-blur-md"
               title="Спавн x3. Нажми для продления"
             >
               <span className="text-xs sm:text-sm">🧪</span>
               <div className="flex items-center gap-1">
                 <span className="text-[9px] text-blue-300 font-bold hidden sm:inline">Спавн x3</span>
-                <span className="font-mono text-[10px] sm:text-xs font-black text-blue-100">{formatTimerMinSec(fastSpawnTime)}</span>
+                <span className="font-mono text-[9px] sm:text-xs font-black text-blue-100">{formatTimerMinSec(fastSpawnTime)}</span>
               </div>
             </button>
           )}
@@ -214,13 +214,13 @@ export const TerritoryView: React.FC = () => {
                 soundManager.playClick();
                 openAdModal('booster', 'super_lucky');
               }}
-              className="pointer-events-auto flex items-center gap-1.5 bg-emerald-950/90 border border-emerald-400/60 text-emerald-200 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[10px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 active:scale-95 transition-transform backdrop-blur-md"
+              className="pointer-events-auto shrink-0 flex items-center gap-1 sm:gap-1.5 bg-emerald-950/90 border border-emerald-400/60 text-emerald-200 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-xl text-[9px] sm:text-xs font-black shadow-md animate-in slide-in-from-right duration-300 active:scale-95 transition-transform backdrop-blur-md"
               title="Удача x2. Нажми для продления"
             >
               <span className="text-xs sm:text-sm">🍀</span>
               <div className="flex items-center gap-1">
                 <span className="text-[9px] text-emerald-300 font-bold hidden sm:inline">Удача x2</span>
-                <span className="font-mono text-[10px] sm:text-xs font-black text-emerald-100">{formatTimerMinSec(superLuckyTime)}</span>
+                <span className="font-mono text-[9px] sm:text-xs font-black text-emerald-100">{formatTimerMinSec(superLuckyTime)}</span>
               </div>
             </button>
           )}
@@ -231,10 +231,6 @@ export const TerritoryView: React.FC = () => {
       <div className="relative flex-1 w-full flex overflow-hidden">
         <TerritoryEnvironment
           zoneId={activeZoneId}
-          onLabClick={() => {
-            soundManager.playClick();
-            setActiveTab('lab');
-          }}
           tutorialStep={tutorialStep}
         >
           {/* WANDERING CREATURES ON TERRITORY */}

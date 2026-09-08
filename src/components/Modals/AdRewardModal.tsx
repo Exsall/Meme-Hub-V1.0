@@ -3,6 +3,7 @@ import { X, Clock, Sparkles, CheckCircle2, Play, Tv, Coins, Award, Volume2, Volu
 import { useGame } from '../../context/GameContext';
 import { BOOSTERS } from '../../data/gameData';
 import { soundManager } from '../../utils/audio';
+import { yandexSdk } from '../../utils/yandexSdk';
 
 interface AdRewardModalProps {
   onClose: () => void;
@@ -73,13 +74,30 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
     return () => clearInterval(interval);
   }, [getAdCooldownRemaining, isBoosterAd]);
 
-  // Handle playing simulated ad
-  const handleStartAd = () => {
+  // Handle playing rewarded ad (Yandex SDK or in-game sponsored ad)
+  const handleStartAd = async () => {
     if (!isBoosterAd && remainingSec > 0) return;
     if (isPlayingAd) return;
     soundManager.playClick();
 
-    // Pick random sponsor
+    // 1. If Yandex SDK is active, launch official rewarded video
+    if (yandexSdk.isAvailable()) {
+      setIsPlayingAd(true);
+      const res = await yandexSdk.showRewardedVideo();
+      setIsPlayingAd(false);
+
+      if (res.success) {
+        if (isBoosterAd && booster) {
+          claimAdReward('booster', booster.id);
+        } else {
+          claimAdReward('coins');
+        }
+        setAdFinished(true);
+      }
+      return;
+    }
+
+    // 2. Standalone / Preview fallback with fun meme sponsor animation
     const randomSponsor = AD_SPONSORS[Math.floor(Math.random() * AD_SPONSORS.length)];
     setCurrentSponsor(randomSponsor);
 

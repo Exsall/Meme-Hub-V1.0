@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Check,
@@ -27,28 +27,13 @@ export const ShopView: React.FC = () => {
     level,
     buyIngredient,
     openBox,
-    setIsAdRewardOpen,
     openAdModal,
-    getAdCooldownRemaining,
     buyBooster,
     isPerkPurchased,
     getBoosterTimeRemaining,
   } = useGame();
 
-  const [adCooldownSec, setAdCooldownSec] = useState<number>(getAdCooldownRemaining());
   const [activeTab, setActiveShopTab] = useState<'boosters' | 'boxes' | 'ingredients'>('boosters');
-  const [, setTimerTick] = useState<number>(0);
-
-  useEffect(() => {
-    setAdCooldownSec(getAdCooldownRemaining());
-    const interval = setInterval(() => {
-      setAdCooldownSec(getAdCooldownRemaining());
-      setTimerTick((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [getAdCooldownRemaining]);
-
-  const canClaimAd = adCooldownSec === 0;
 
   const [activeBoxResult, setActiveBoxResult] = useState<{
     box: MysteryBox;
@@ -91,52 +76,6 @@ export const ShopView: React.FC = () => {
           <span className="text-base">🪙</span>
           <span className="text-sm font-black text-amber-300">{coins.toLocaleString()}</span>
         </div>
-      </div>
-
-      {/* 1,000 Coins Ad Reward Banner */}
-      <div className="mt-3 p-3.5 bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/10 border border-amber-500/40 rounded-2xl flex items-center justify-between gap-3 shadow-md">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-11 h-11 rounded-2xl bg-amber-500/25 border border-amber-400/50 flex items-center justify-center text-2xl shrink-0 shadow-inner">
-            📺
-          </div>
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-black text-amber-300">1 000 🪙 за рекламу</span>
-              <span className="text-[10px] bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full font-bold border border-amber-400/30">
-                Спонсор
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-300 truncate">
-              {canClaimAd
-                ? 'Посмотри ролик спонсора и получи 1 000 монет!'
-                : `Следующая реклама через: ${Math.floor(adCooldownSec / 3600)}ч ${Math.floor((adCooldownSec % 3600) / 60)}м`}
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => {
-            soundManager.playClick();
-            setIsAdRewardOpen(true);
-          }}
-          className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-black transition-all shadow-md flex items-center gap-1.5 active:scale-95 ${
-            canClaimAd
-              ? 'bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 hover:brightness-110 animate-pulse'
-              : 'bg-slate-800 text-slate-300 border border-slate-700 hover:text-white'
-          }`}
-        >
-          {canClaimAd ? (
-            <>
-              <Tv className="w-3.5 h-3.5" />
-              <span>Смотреть</span>
-            </>
-          ) : (
-            <>
-              <Clock className="w-3.5 h-3.5 text-amber-400" />
-              <span>Таймер</span>
-            </>
-          )}
-        </button>
       </div>
 
       {/* Categories Switcher */}

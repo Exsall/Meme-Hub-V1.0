@@ -21,6 +21,7 @@ import { WHEEL_SECTORS } from '../../data/gameData';
 import { WheelSector } from '../../types/game';
 import { soundManager } from '../../utils/audio';
 import { GAME_CONFIG } from '../../config/gameConfig';
+import { yandexSdk } from '../../utils/yandexSdk';
 
 interface FortuneWheelModalProps {
   onClose: () => void;
@@ -150,10 +151,34 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
   };
 
   // Start watching ad for bonus spin
-  const handleStartAdSpin = () => {
+  const handleStartAdSpin = async () => {
     if (isSpinning || (!canClaimAdWheelSpin && adCooldownSec > 0)) return;
     soundManager.playClick();
 
+    // 1. If Yandex SDK is present, show official Yandex Rewarded Video
+    if (yandexSdk.isAvailable()) {
+      setIsPlayingAd(true);
+      const res = await yandexSdk.showRewardedVideo();
+      setIsPlayingAd(false);
+
+      if (res.success) {
+        const success = claimAdWheelSpin();
+        if (success) {
+          showToast('📺 +1 Рекламный спин добавлен в копилку!');
+          try {
+            confetti({
+              particleCount: 45,
+              spread: 60,
+              origin: { y: 0.6 },
+              colors: ['#8b5cf6', '#ec4899', '#f59e0b'],
+            });
+          } catch (e) {}
+        }
+      }
+      return;
+    }
+
+    // 2. Standalone / Preview fallback animation
     const randomSponsor = WHEEL_SPONSORS[Math.floor(Math.random() * WHEEL_SPONSORS.length)];
     setAdSponsor(randomSponsor);
     setIsPlayingAd(true);
@@ -281,8 +306,8 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
   const center = 150;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in select-none overflow-y-auto">
-      <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border-2 border-amber-500/50 p-4 sm:p-6 shadow-2xl overflow-hidden flex flex-col items-center text-center my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in select-none overflow-y-auto">
+      <div className="relative w-full max-w-lg max-h-[94vh] rounded-3xl bg-slate-900 border-2 border-amber-500/50 p-3.5 sm:p-6 shadow-2xl overflow-y-auto flex flex-col items-center text-center my-auto">
         {/* Glow ambient effects */}
         <div className="absolute -top-24 -left-24 w-56 h-56 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -right-24 w-56 h-56 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />

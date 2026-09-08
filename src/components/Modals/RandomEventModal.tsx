@@ -17,9 +17,9 @@ export const RandomEventModal: React.FC<RandomEventModalProps> = ({ event, onClo
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 select-none">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 select-none overflow-y-auto">
       <div
-        className={`relative w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border-2 animate-in zoom-in-95 duration-200 ${
+        className={`relative w-full max-w-md max-h-[94vh] rounded-3xl overflow-hidden shadow-2xl border-2 flex flex-col my-auto animate-in zoom-in-95 duration-200 ${
           isPositive
             ? 'bg-slate-900 border-amber-400 shadow-[0_0_50px_rgba(251,191,36,0.35)]'
             : 'bg-slate-900 border-rose-500 shadow-[0_0_50px_rgba(244,63,94,0.35)]'
@@ -34,7 +34,7 @@ export const RandomEventModal: React.FC<RandomEventModalProps> = ({ event, onClo
 
         {/* HEADER STRIP */}
         <div
-          className={`px-6 pt-5 pb-3 flex items-center justify-between border-b ${
+          className={`px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between border-b shrink-0 ${
             isPositive
               ? 'bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-amber-500/10 border-amber-500/20'
               : 'bg-gradient-to-r from-rose-500/10 via-orange-500/10 to-rose-500/10 border-rose-500/20'
@@ -42,26 +42,26 @@ export const RandomEventModal: React.FC<RandomEventModalProps> = ({ event, onClo
         >
           <div className="flex items-center gap-2">
             {isPositive ? (
-              <span className="flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
-                <Sparkles className="w-3.5 h-3.5" />
+              <span className="flex items-center gap-1 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 Удачное Событие
               </span>
             ) : (
-              <span className="flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-rose-400 bg-rose-500/20 border border-rose-500/30 px-2.5 py-0.5 rounded-full">
-                <AlertTriangle className="w-3.5 h-3.5" />
+              <span className="flex items-center gap-1 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-rose-400 bg-rose-500/20 border border-rose-500/30 px-2.5 py-0.5 rounded-full">
+                <AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 Происшествие
               </span>
             )}
           </div>
 
-          <span className="text-xs font-bold text-slate-400">Случайный ивент</span>
+          <span className="text-[11px] sm:text-xs font-bold text-slate-400">Случайный ивент</span>
         </div>
 
-        {/* MAIN CONTENT AREA */}
-        <div className="p-6 flex flex-col items-center text-center relative z-10">
+        {/* MAIN CONTENT AREA - SCROLLABLE ON SHORT/LANDSCAPE SCREENS */}
+        <div className="p-3.5 sm:p-6 flex-1 overflow-y-auto flex flex-col items-center text-center relative z-10">
           {/* BIG ICON BADGE */}
           <div
-            className={`w-20 h-20 rounded-3xl flex items-center justify-center text-4xl mb-4 border-2 shadow-lg animate-bounce ${
+            className={`w-14 h-14 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl flex items-center justify-center text-3xl sm:text-4xl mb-2.5 sm:mb-4 border-2 shadow-lg animate-bounce shrink-0 ${
               isPositive
                 ? 'bg-gradient-to-br from-amber-400/20 to-emerald-500/20 border-amber-400/50 text-amber-300'
                 : 'bg-gradient-to-br from-rose-500/20 to-orange-500/20 border-rose-500/50 text-rose-300'
@@ -72,13 +72,13 @@ export const RandomEventModal: React.FC<RandomEventModalProps> = ({ event, onClo
           </div>
 
           {/* EVENT TITLE */}
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-2">
+          <h2 className="text-lg sm:text-2xl font-black text-white tracking-tight mb-2">
             {event.title}
           </h2>
 
           {/* CAUSE / STORY BOX */}
-          <div className="w-full bg-slate-950/60 border border-slate-800 rounded-2xl p-3.5 mb-4 text-left">
-            <p className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1.5">
+          <div className="w-full bg-slate-950/60 border border-slate-800 rounded-2xl p-2.5 sm:p-3.5 mb-2.5 sm:mb-4 text-left">
+            <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1.5">
               <span>📖 Что произошло:</span>
             </p>
             <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
@@ -88,22 +88,22 @@ export const RandomEventModal: React.FC<RandomEventModalProps> = ({ event, onClo
 
           {/* OUTCOME CONSEQUENCES BOX */}
           <div
-            className={`w-full rounded-2xl p-4 border flex flex-col items-center gap-1.5 shadow-inner mb-6 ${
+            className={`w-full rounded-2xl p-2.5 sm:p-4 border flex flex-col items-center gap-1 shadow-inner mb-3 sm:mb-6 ${
               isPositive
                 ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
                 : 'bg-rose-950/40 border-rose-500/40 text-rose-200'
             }`}
           >
-            <span className="text-[11px] font-black uppercase tracking-wider opacity-80">
+            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider opacity-80">
               {event.outcomeHeadline}
             </span>
 
-            <div className="text-base sm:text-lg font-black flex items-center justify-center gap-2 text-center">
+            <div className="text-sm sm:text-lg font-black flex items-center justify-center gap-2 text-center">
               <span>{event.outcomeBadge}</span>
             </div>
 
             {event.consequenceText && (
-              <p className="text-xs opacity-90 text-center font-medium mt-0.5">
+              <p className="text-[11px] sm:text-xs opacity-90 text-center font-medium mt-0.5">
                 {event.consequenceText}
               </p>
             )}
@@ -113,13 +113,13 @@ export const RandomEventModal: React.FC<RandomEventModalProps> = ({ event, onClo
           <button
             id="confirm-random-event-btn"
             onClick={handleConfirm}
-            className={`w-full py-3.5 px-6 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-2 transition-all active:scale-95 shadow-xl ${
+            className={`w-full py-2.5 sm:py-3.5 px-4 sm:px-6 rounded-2xl font-black text-xs sm:text-base flex items-center justify-center gap-2 transition-all active:scale-95 shadow-xl shrink-0 mt-auto ${
               isPositive
                 ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 hover:brightness-110 shadow-amber-500/25'
                 : 'bg-gradient-to-r from-rose-600 via-red-500 to-rose-600 text-white hover:brightness-110 shadow-rose-500/25'
             }`}
           >
-            <Check className="w-5 h-5 stroke-[2.5]" />
+            <Check className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
             <span>{isPositive ? 'Отлично, принять!' : 'Понятно, принять последствия'}</span>
           </button>
         </div>

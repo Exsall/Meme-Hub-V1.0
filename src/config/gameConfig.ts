@@ -102,7 +102,7 @@ export const GAME_CONFIG: MasterGameConfig = {
   },
 
   features: {
-    enableAdminPanel: true,  // Установите в false, чтобы полностью скрыть Админку
+    enableAdminPanel: false,  // Установите в false, чтобы полностью скрыть Админку
     enableAnalytics: false,   // Установите в false, чтобы отключить аналитику и скрыть вкладку
     enableRandomEvents: true, // Включение автоматических ивентов
     enableAutoSave: true,     // Сохранение состояния в браузере
@@ -165,7 +165,7 @@ export const GAME_CONFIG: MasterGameConfig = {
 
   audio: {
     defaultSoundEnabled: true,
-    defaultMusicEnabled: false,
+    defaultMusicEnabled: true,
     defaultVolume: 75,
   },
 };

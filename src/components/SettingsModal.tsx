@@ -18,6 +18,7 @@ import { useGame } from '../context/GameContext';
 import { analytics } from '../utils/analytics';
 import { soundManager } from '../utils/audio';
 import { GAME_CONFIG } from '../config/gameConfig';
+import { yandexSdk } from '../utils/yandexSdk';
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -244,7 +245,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               <ChevronRight className="w-4 h-4 text-slate-500" />
             </button>
 
-            <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 text-center mt-2">
+            {/* Yandex Cloud Save status card */}
+            <div className="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/80 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                  <Database className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-white block truncate">Облачные сохранения Yandex</span>
+                  <span className="text-[10px] text-slate-400 block leading-tight">
+                    {yandexSdk.isCloudSaveAvailable()
+                      ? 'Синхронизация с профилем Яндекса активна'
+                      : 'Локальное автосохранение + синхронизация при входе'}
+                  </span>
+                </div>
+              </div>
+              <div className="shrink-0 flex items-center justify-center px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-black uppercase tracking-wider whitespace-nowrap leading-none gap-1">
+                <span>{yandexSdk.isCloudSaveAvailable() ? 'Облако' : 'Авто'}</span>
+                <span>{yandexSdk.isCloudSaveAvailable() ? '☁️' : '💾'}</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 text-center mt-1">
               <span className="text-xs font-black text-amber-300 block tracking-wide">
                 {GAME_CONFIG.meta.appName} {GAME_CONFIG.meta.version}
               </span>

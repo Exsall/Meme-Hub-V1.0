@@ -13,8 +13,8 @@ import { SettingsModal } from './components/SettingsModal';
 import { OfflineIncomeModal } from './components/OfflineIncomeModal';
 import { AdRewardModal } from './components/Modals/AdRewardModal';
 import { RandomEventModal } from './components/Modals/RandomEventModal';
-import { FortuneWheelNotification } from './components/FortuneWheel/FortuneWheelNotification';
 import { FortuneWheelModal } from './components/FortuneWheel/FortuneWheelModal';
+import { LeftActionsStack } from './components/Territory/LeftActionsStack';
 import { WelcomeModal } from './components/Modals/WelcomeModal';
 
 const GameShell: React.FC = () => {
@@ -48,8 +48,8 @@ const GameShell: React.FC = () => {
         {activeTab === 'shop' && <ShopView />}
       </main>
 
-      {/* Floating Left Side 24h Fortune Wheel Notification (Only on Meadow/Home screen) */}
-      {activeTab === 'home' && <FortuneWheelNotification />}
+      {/* Floating Left Side Lab & Fortune Wheel Actions Stack (Only on Meadow/Home screen) */}
+      {activeTab === 'home' && <LeftActionsStack />}
 
       {/* Bottom Navigation */}
       <BottomNav />

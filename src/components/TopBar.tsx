@@ -16,11 +16,7 @@ export const TopBar: React.FC = () => {
     setIsQuestsOpen,
     setIsSettingsOpen,
     setIsAdRewardOpen,
-    setIsWheelOpen,
     setIsWelcomeOpen,
-    wheelSpinsCount,
-    canClaimDailyWheelSpin,
-    canClaimAdWheelSpin,
     getAdCooldownRemaining,
     lastDailyClaimDate,
     claimableQuestsCount,
@@ -103,32 +99,6 @@ export const TopBar: React.FC = () => {
 
         {/* Right: Quick Action Triggers */}
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-          {/* Wheel of Fortune button */}
-          <button
-            id="topbar-wheel-btn"
-            onClick={() => {
-              soundManager.playClick();
-              setIsWheelOpen(true);
-            }}
-            className={`relative p-1.5 sm:p-2 rounded-xl border transition-all active:scale-95 flex items-center justify-center ${
-              wheelSpinsCount > 0
-                ? 'bg-amber-500/30 border-amber-400 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.6)] animate-pulse'
-                : canClaimDailyWheelSpin || canClaimAdWheelSpin
-                ? 'bg-amber-500/20 border-amber-400 text-amber-300'
-                : 'bg-slate-800/80 border-slate-700 text-slate-400'
-            }`}
-            title={`Мемное Колесо Фортуны (${wheelSpinsCount} спинов)`}
-          >
-            <span className="text-xs sm:text-sm leading-none">🎡</span>
-            {wheelSpinsCount > 0 ? (
-              <span className="absolute -top-1 -right-1 min-w-[15px] h-3.5 px-0.5 text-[8px] font-black bg-amber-400 text-slate-950 rounded-full flex items-center justify-center ring-1 ring-slate-950 shadow">
-                {wheelSpinsCount}
-              </span>
-            ) : (canClaimDailyWheelSpin || canClaimAdWheelSpin) && (
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full ring-1 ring-slate-900 animate-ping" />
-            )}
-          </button>
-
           {/* Daily Reward button */}
           <button
             id="topbar-daily-btn"

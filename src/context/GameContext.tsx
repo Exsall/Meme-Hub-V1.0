@@ -33,6 +33,7 @@ import { analytics } from '../utils/analytics';
 import { soundManager } from '../utils/audio';
 import { triggerRandomGameEvent } from '../data/randomEvents';
 import { GAME_CONFIG } from '../config/gameConfig';
+import { yandexSdk } from '../utils/yandexSdk';
 
 const STORAGE_KEY = 'meme_lab_save_v1';
 const MAX_COINS = 1_000_000_000_000;
@@ -472,66 +473,84 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Refs for loop
   const isLoadedRef = useRef<boolean>(false);
 
-  // Initialize from storage
+  // Initialize Yandex SDK and load from Cloud / Local storage
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const saved = sanitizeSaveData(JSON.parse(raw));
-        setCoins(saved.coins);
-        setXp(saved.xp);
-        setLevel(saved.level);
-        setInventory(saved.inventory);
-        setPlacedCreatures(saved.placedCreatures);
-        setBackpackCreatures(saved.backpackCreatures || []);
-        setDiscoveredCreatures(saved.discoveredCreatures);
-        setUnlockedZones(saved.unlockedZones);
-        setCompletedQuests(saved.completedQuests);
-        setQuestProgress(saved.questProgress);
-        setDailyStreak(saved.dailyStreak);
-        setLastDailyClaimDate(saved.lastDailyClaimDate);
-        setWheelSpinsCount(saved.wheelSpinsCount || 0);
-        setLastWheelSpinTimestamp(saved.lastWheelSpinTimestamp || 0);
-        setLastWheelAdSpinTimestamp(saved.lastWheelAdSpinTimestamp || 0);
-        setLastAdRewardTimestamp(saved.lastAdRewardTimestamp || 0);
-        setPurchasedPerks(saved.purchasedPerks || []);
-        setActiveBoosters(saved.activeBoosters || {});
-        setTutorialStep(saved.tutorialStep);
-        setSoundEnabled(saved.settings.soundEnabled);
-        setMusicEnabled(saved.settings.musicEnabled);
-        setVolumeState(saved.settings.volume || GAME_CONFIG.audio.defaultVolume);
-        soundManager.setSoundEnabled(saved.settings.soundEnabled);
-        soundManager.setMusicEnabled(saved.settings.musicEnabled);
-        soundManager.setVolume(saved.settings.volume || GAME_CONFIG.audio.defaultVolume);
+    let isCancelled = false;
 
-        if (saved.lastActiveTimestamp && saved.placedCreatures.length > 0) {
-          const now = Date.now();
-          const elapsedSec = Math.max(0, Math.floor((now - saved.lastActiveTimestamp) / 1000));
-          if (elapsedSec > 15) {
-            const rate = saved.placedCreatures.reduce((sum, pc) => {
-              const cr = CREATURES.find((c) => c.id === pc.creatureId);
-              return cr ? sum + calculateCreatureIncome(cr, pc.level) : sum;
-            }, 0);
-            const cappedSec = Math.min(elapsedSec, (config.offlineMaxHours || GAME_CONFIG.economy.offlineMaxHours) * 3600);
-            const earned = clampCoins(Math.floor(rate * cappedSec));
-            if (earned > 0) {
-              setOfflineEarnedCoins(earned);
-              setOfflineElapsedMinutes(Math.floor(cappedSec / 60));
+    const initAndLoad = async () => {
+      try {
+        // 1. Initialize Yandex SDK
+        await yandexSdk.init();
+
+        // 2. Load save data from Yandex Cloud (with fallback to localStorage)
+        const rawSave = await yandexSdk.loadData(STORAGE_KEY);
+
+        if (isCancelled) return;
+
+        if (rawSave) {
+          const saved = sanitizeSaveData(rawSave);
+          setCoins(saved.coins);
+          setXp(saved.xp);
+          setLevel(saved.level);
+          setInventory(saved.inventory);
+          setPlacedCreatures(saved.placedCreatures);
+          setBackpackCreatures(saved.backpackCreatures || []);
+          setDiscoveredCreatures(saved.discoveredCreatures);
+          setUnlockedZones(saved.unlockedZones);
+          setCompletedQuests(saved.completedQuests);
+          setQuestProgress(saved.questProgress);
+          setDailyStreak(saved.dailyStreak);
+          setLastDailyClaimDate(saved.lastDailyClaimDate);
+          setWheelSpinsCount(saved.wheelSpinsCount || 0);
+          setLastWheelSpinTimestamp(saved.lastWheelSpinTimestamp || 0);
+          setLastWheelAdSpinTimestamp(saved.lastWheelAdSpinTimestamp || 0);
+          setLastAdRewardTimestamp(saved.lastAdRewardTimestamp || 0);
+          setPurchasedPerks(saved.purchasedPerks || []);
+          setActiveBoosters(saved.activeBoosters || {});
+          setTutorialStep(saved.tutorialStep);
+          setSoundEnabled(saved.settings.soundEnabled);
+          setMusicEnabled(saved.settings.musicEnabled);
+          setVolumeState(saved.settings.volume || GAME_CONFIG.audio.defaultVolume);
+          soundManager.setSoundEnabled(saved.settings.soundEnabled);
+          soundManager.setMusicEnabled(saved.settings.musicEnabled);
+          soundManager.setVolume(saved.settings.volume || GAME_CONFIG.audio.defaultVolume);
+
+          if (saved.lastActiveTimestamp && saved.placedCreatures.length > 0) {
+            const now = Date.now();
+            const elapsedSec = Math.max(0, Math.floor((now - saved.lastActiveTimestamp) / 1000));
+            if (elapsedSec > 15) {
+              const rate = saved.placedCreatures.reduce((sum, pc) => {
+                const cr = CREATURES.find((c) => c.id === pc.creatureId);
+                return cr ? sum + calculateCreatureIncome(cr, pc.level) : sum;
+              }, 0);
+              const cappedSec = Math.min(elapsedSec, (config.offlineMaxHours || GAME_CONFIG.economy.offlineMaxHours) * 3600);
+              const earned = clampCoins(Math.floor(rate * cappedSec));
+              if (earned > 0) {
+                setOfflineEarnedCoins(earned);
+                setOfflineElapsedMinutes(Math.floor(cappedSec / 60));
+              }
             }
           }
+        } else {
+          analytics.track('tutorial_start', { step: 0 });
         }
-      } else {
-        analytics.track('tutorial_start', { step: 0 });
+      } catch (e) {
+        console.error('Failed to load save from Yandex / Storage:', e);
+      } finally {
+        if (!isCancelled) {
+          isLoadedRef.current = true;
+        }
       }
-    } catch (e) {
-      console.error('Failed to load save:', e);
-      localStorage.removeItem(STORAGE_KEY);
-    } finally {
-      isLoadedRef.current = true;
-    }
+    };
+
+    initAndLoad();
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
-  // Save to storage
+  // Save to storage (LocalStorage & Yandex Cloud Save)
   useEffect(() => {
     if (!isLoadedRef.current || !GAME_CONFIG.features.enableAutoSave) return;
     try {
@@ -563,7 +582,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           volume,
         },
       });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
+
+      // Saves to both localStorage and player.setData(..., true)
+      yandexSdk.saveData(STORAGE_KEY, saveData as unknown as Record<string, unknown>);
     } catch (e) {
       console.error('Save failed:', e);
     }
