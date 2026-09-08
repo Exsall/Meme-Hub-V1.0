@@ -49,8 +49,22 @@
       }
     </style>
 
-    <!-- Yandex Games SDK. /sdk.js is required for ZIP uploads hosted by Yandex. -->
+    <!-- Yandex Games SDK. Archive builds hosted by Yandex must use /sdk.js. -->
     <script src="/sdk.js"></script>
+    <script>
+      // Explicit bootstrap follows the official Yandex Games integration example.
+      // Keeping YaGames.init() visible in index.html also makes automated SDK checks reliable.
+      if (typeof YaGames !== 'undefined') {
+        YaGames.init()
+          .then(function (ysdk) {
+            window.ysdk = ysdk;
+            console.log('[Yandex SDK] Bootstrap initialized from index.html.');
+          })
+          .catch(function (error) {
+            console.error('[Yandex SDK] Bootstrap initialization failed:', error);
+          });
+      }
+    </script>
   </head>
   <body class="bg-slate-900 text-slate-100 select-none overflow-hidden touch-manipulation">
     <div id="root"></div>
