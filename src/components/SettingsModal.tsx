@@ -12,6 +12,7 @@ import {
   VolumeX,
   Wrench,
   HelpCircle,
+  Languages,
   X,
 } from 'lucide-react';
 import { useGame } from '../context/GameContext';
@@ -19,6 +20,7 @@ import { analytics } from '../utils/analytics';
 import { soundManager } from '../utils/audio';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { playgamaSdk } from '../utils/playgamaSdk';
+import { getLanguage, setLanguage } from '../utils/i18n';
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -57,6 +59,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const [offlineHours, setOfflineHours] = useState(config.offlineMaxHours);
   const [customLevelInput, setCustomLevelInput] = useState<string>('');
   const events = analytics.getEvents();
+  const language = getLanguage();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm select-none animate-fade-in">
@@ -221,6 +224,50 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   }`}
                 />
               </button>
+            </div>
+
+            {/* Language selector */}
+            <div className="bg-slate-800/80 p-3.5 rounded-2xl border border-slate-700 flex flex-col gap-2.5">
+              <div className="flex items-center gap-2.5">
+                <Languages className="w-5 h-5 text-cyan-400" />
+                <div>
+                  <span className="text-sm font-bold text-white block">Язык игры</span>
+                  <span className="text-xs text-slate-400">
+                    Язык можно изменить в любое время. Игра перезапустится для применения перевода.
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundManager.playClick();
+                    if (language !== 'en') setLanguage('en');
+                  }}
+                  className={`py-2 rounded-xl text-xs font-black border transition-all active:scale-95 ${
+                    language === 'en'
+                      ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow'
+                      : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-cyan-500/60'
+                  }`}
+                >
+                  🇬🇧 English
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundManager.playClick();
+                    if (language !== 'ru') setLanguage('ru');
+                  }}
+                  className={`py-2 rounded-xl text-xs font-black border transition-all active:scale-95 ${
+                    language === 'ru'
+                      ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow'
+                      : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-cyan-500/60'
+                  }`}
+                >
+                  🇷🇺 Русский
+                </button>
+              </div>
             </div>
 
             {/* Guide & Rules Button */}
@@ -554,7 +601,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             {/* Reset Save */}
             <button
               onClick={() => {
-                if (confirm('Сбросить весь прогресс и начать заново?')) {
+                if (confirm(language === 'en' ? 'Reset all progress and start over?' : 'Сбросить весь прогресс и начать заново?')) {
                   devResetProgress();
                 }
               }}
