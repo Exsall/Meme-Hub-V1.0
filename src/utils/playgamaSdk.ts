@@ -1,4 +1,5 @@
 import { soundManager } from './audio';
+import { getLanguage } from './i18n';
 
 type RewardedState = 'loading' | 'opened' | 'rewarded' | 'closed' | 'failed';
 type InterstitialState = 'loading' | 'opened' | 'closed' | 'failed';
@@ -64,7 +65,6 @@ declare global {
   }
 }
 
-const SUPPORTED_LANGUAGES = new Set(['ru']);
 const SDK_OPERATION_TIMEOUT_MS = 8_000;
 const AD_OPERATION_TIMEOUT_MS = 120_000;
 
@@ -108,7 +108,7 @@ class PlaygamaService {
   private gameReadySending = false;
   private gameReadyScheduled = false;
   private firstGameplayInteractionArmed = false;
-  private activeLanguage = 'ru';
+  private activeLanguage = 'en';
 
   private readonly platformPauseCallback = (isPaused: boolean) => {
     if (isPaused) {
@@ -199,8 +199,10 @@ class PlaygamaService {
   }
 
   private applyLanguageFromSdk(): void {
-    const requested = this.bridge?.platform?.language?.toLowerCase() || 'ru';
-    this.activeLanguage = SUPPORTED_LANGUAGES.has(requested) ? requested : 'ru';
+    // Keep the portal language for diagnostics, but the game language is selected
+    // by the player. New players start in English regardless of portal locale.
+    const requested = this.bridge?.platform?.language?.toLowerCase() || 'en';
+    this.activeLanguage = getLanguage();
 
     if (typeof document !== 'undefined') {
       document.documentElement.lang = this.activeLanguage;
