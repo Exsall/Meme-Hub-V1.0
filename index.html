@@ -58,7 +58,8 @@
           .initialize()
           .then(function () {
             var platformLanguage = String(window.bridge.platform.language || 'en').toLowerCase();
-            var selectedLanguage = localStorage.getItem('meme_hub_language') === 'ru' ? 'ru' : 'en';
+            var selectedLanguage = 'en';
+            try { selectedLanguage = localStorage.getItem('meme_hub_language') === 'ru' ? 'ru' : 'en'; } catch (_) {}
             document.documentElement.lang = selectedLanguage;
             document.documentElement.dataset.platformLanguage = platformLanguage;
             console.log(
