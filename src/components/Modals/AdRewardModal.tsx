@@ -3,7 +3,7 @@ import { X, Clock, Sparkles, CheckCircle2, Play, Tv, Coins, Award, Volume2, Volu
 import { useGame } from '../../context/GameContext';
 import { BOOSTERS } from '../../data/gameData';
 import { soundManager } from '../../utils/audio';
-import { yandexSdk } from '../../utils/yandexSdk';
+import { playgamaSdk } from '../../utils/playgamaSdk';
 
 interface AdRewardModalProps {
   onClose: () => void;
@@ -75,19 +75,19 @@ export const AdRewardModal: React.FC<AdRewardModalProps> = ({ onClose }) => {
     return () => clearInterval(interval);
   }, [getAdCooldownRemaining, isBoosterAd]);
 
-  // Handle playing rewarded ad (Yandex SDK or in-game sponsored ad)
+  // Handle playing rewarded ad (Playgama Bridge or in-game sponsored ad)
   const handleStartAd = async () => {
     if (!isBoosterAd && remainingSec > 0) return;
     if (isPlayingAd) return;
     soundManager.playClick();
 
-    // 1. If Yandex SDK is active, launch official rewarded video.
-    // The local 5-second fallback timer must never run for a real Yandex ad,
+    // 1. If Playgama Bridge is active, launch official rewarded video.
+    // The local 5-second fallback timer must never run for a real Playgama ad,
     // otherwise the same reward can be granted once by the timer and once by onRewarded.
-    if (yandexSdk.isAvailable()) {
+    if (playgamaSdk.isAvailable()) {
       setIsSimulatedAd(false);
       setIsPlayingAd(true);
-      const res = await yandexSdk.showRewardedVideo();
+      const res = await playgamaSdk.showRewardedVideo(isBoosterAd && booster ? `booster_${booster.id}` : 'coins_10000');
       setIsPlayingAd(false);
 
       if (res.success) {
