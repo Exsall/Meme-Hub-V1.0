@@ -295,7 +295,14 @@ class PlaygamaService {
   }
 
   public isAvailable(): boolean {
-    return Boolean(this.bridge && this.isInitialized && this.bridge.advertisement?.isRewardedSupported);
+    // True means Playgama Bridge itself is initialized. Rewarded support is checked
+    // inside showRewardedVideo(), so simulated preview ads are never shown on a
+    // real Playgama/partner runtime merely because that platform has no ad fill.
+    return Boolean(this.bridge && this.isInitialized);
+  }
+
+  public isRewardedAvailable(): boolean {
+    return Boolean(this.bridge?.advertisement?.isRewardedSupported);
   }
 
   public isCloudSaveAvailable(): boolean {
