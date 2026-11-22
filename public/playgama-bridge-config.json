@@ -1,0 +1,27 @@
+{
+  "$schema": "https://bridge.playgama.com/v2/stable/schema.json",
+  "device": {
+    "useBuiltInOrientationPopup": true,
+    "supportedOrientations": [
+      "landscape",
+      "portrait"
+    ]
+  },
+  "advertisement": {
+    "banner": {},
+    "interstitial": {
+      "preloadOnStart": "game_break",
+      "placementFallback": "game_break"
+    },
+    "rewarded": {
+      "preloadOnStart": "rewarded_bonus",
+      "placementFallback": "rewarded_bonus"
+    },
+    "minimumDelayBetweenInterstitial": 60,
+    "initialInterstitialDelay": 30,
+    "useBuiltInErrorPopup": true
+  },
+  "payments": [],
+  "leaderboards": [],
+  "sendAnalyticsEvents": true
+}
