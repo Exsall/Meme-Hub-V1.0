@@ -21,7 +21,7 @@ import { WHEEL_SECTORS } from '../../data/gameData';
 import { WheelSector } from '../../types/game';
 import { soundManager } from '../../utils/audio';
 import { GAME_CONFIG } from '../../config/gameConfig';
-import { yandexSdk } from '../../utils/yandexSdk';
+import { playgamaSdk } from '../../utils/playgamaSdk';
 
 interface FortuneWheelModalProps {
   onClose: () => void;
@@ -156,12 +156,12 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({ onClose })
     if (isSpinning || (!canClaimAdWheelSpin && adCooldownSec > 0)) return;
     soundManager.playClick();
 
-    // 1. If Yandex SDK is present, show official Yandex Rewarded Video.
-    // Never run the local 5-second preview timer at the same time as a real Yandex ad.
-    if (yandexSdk.isAvailable()) {
+    // 1. If Playgama Bridge is present, show official Playgama rewarded video.
+    // Never run the local 5-second preview timer at the same time as a real Playgama ad.
+    if (playgamaSdk.isAvailable()) {
       setIsSimulatedAd(false);
       setIsPlayingAd(true);
-      const res = await yandexSdk.showRewardedVideo();
+      const res = await playgamaSdk.showRewardedVideo('wheel_spin');
       setIsPlayingAd(false);
 
       if (res.success) {
