@@ -37,10 +37,12 @@ jobs:
           cd ..
           unzip -l meme-hub-v2.0.zip | head -100
 
-      - name: Upload Playgama package
+      # Upload dist directly. The downloaded GitHub artifact is therefore itself
+      # a Playgama-ready ZIP with index.html at the archive root (no ZIP-inside-ZIP).
+      - name: Upload Playgama-ready archive contents
         uses: actions/upload-artifact@v4
         with:
           name: meme-hub-v2.0-playgama-${{ github.sha }}
-          path: meme-hub-v2.0.zip
+          path: dist/
           if-no-files-found: error
           retention-days: 30
