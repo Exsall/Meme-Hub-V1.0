@@ -539,6 +539,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } finally {
         if (!isCancelled) {
           isLoadedRef.current = true;
+          playgamaSdk.scheduleGameReady();
         }
       }
     };
