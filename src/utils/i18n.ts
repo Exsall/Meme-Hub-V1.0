@@ -854,7 +854,8 @@ const translateElement = (element: Element): void => {
   for (const attribute of ['title', 'aria-label', 'placeholder']) {
     const value = element.getAttribute(attribute);
     if (value && /[А-Яа-яЁё]/.test(value)) {
-      element.setAttribute(attribute, translateText(value, 'en'));
+      const translated = translateText(value, 'en');
+      if (translated !== value) element.setAttribute(attribute, translated);
     }
   }
 };
@@ -863,7 +864,8 @@ const translateNode = (node: Node): void => {
   if (node.nodeType === Node.TEXT_NODE) {
     const value = node.nodeValue;
     if (value && /[А-Яа-яЁё]/.test(value)) {
-      node.nodeValue = translateText(value, 'en');
+      const translated = translateText(value, 'en');
+      if (translated !== value) node.nodeValue = translated;
     }
     return;
   }
@@ -876,7 +878,10 @@ const translateNode = (node: Node): void => {
   while (current) {
     if (current.nodeType === Node.TEXT_NODE) {
       const value = current.nodeValue;
-      if (value && /[А-Яа-яЁё]/.test(value)) current.nodeValue = translateText(value, 'en');
+      if (value && /[А-Яа-яЁё]/.test(value)) {
+        const translated = translateText(value, 'en');
+        if (translated !== value) current.nodeValue = translated;
+      }
     } else if (current instanceof Element) {
       translateElement(current);
     }
