@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Meme Hub V2.0</title>
-    <meta name="description" content="Meme Hub V2.0 — браузерная 2D merge & idle игра от команды G3R." />
+    <meta name="description" content="Meme Hub V2.0 — a casual merge & idle game by G3R." />
     <meta property="og:title" content="Meme Hub V2.0" />
-    <meta property="og:description" content="Создавай мемных существ, развивай лабораторию и открывай новые зоны в Meme Hub V2.0." />
+    <meta property="og:description" content="Create meme creatures, grow your laboratory, and unlock new zones in Meme Hub V2.0." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
 
@@ -57,14 +57,17 @@
         window.playgamaBridgePromise = window.bridge
           .initialize()
           .then(function () {
-            var platformLanguage = String(window.bridge.platform.language || 'ru').toLowerCase();
-            document.documentElement.lang = 'ru';
+            var platformLanguage = String(window.bridge.platform.language || 'en').toLowerCase();
+            var selectedLanguage = localStorage.getItem('meme_hub_language') === 'ru' ? 'ru' : 'en';
+            document.documentElement.lang = selectedLanguage;
             document.documentElement.dataset.platformLanguage = platformLanguage;
             console.log(
               '[Playgama Bridge] Bootstrap initialized. Platform:',
               window.bridge.platform.id,
-              'Language:',
+              'Platform language:',
               platformLanguage,
+              'Game language:',
+              selectedLanguage,
             );
             return window.bridge;
           })
