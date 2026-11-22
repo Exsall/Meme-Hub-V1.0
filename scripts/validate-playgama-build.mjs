@@ -57,6 +57,8 @@ if (failures.length === 0) {
     assert(!indexHtml.includes('yandexSdkPromise'), 'Yandex SDK bootstrap promise is still present.');
     assert(!indexHtml.includes('fonts.googleapis.com'), 'External Google Fonts request is present.');
     assert(!indexHtml.includes('fonts.gstatic.com'), 'External Google Fonts host is present.');
+    assert(indexHtml.includes('<html lang="en">'), 'English must be the default document language.');
+    assert(indexHtml.includes('meme_hub_language'), 'Language preference bootstrap is missing from index.html.');
   }
 
   try {
@@ -104,6 +106,24 @@ if (failures.length === 0) {
     `Unpacked dist is ${formatMb(totalBytes)}; Playgama limit is 300 MB.`,
   );
   notes.push(`dist size: ${formatMb(totalBytes)} (${files.length} files)`);
+}
+
+try {
+  const i18nSource = await readFile(path.join(ROOT, 'src/utils/i18n.ts'), 'utf8');
+  assert(i18nSource.includes("export type GameLanguage = 'en' | 'ru'"), 'RU/EN language types are missing.');
+  assert(i18nSource.includes("return saved === 'ru' ? 'ru' : 'en'"), 'English must be the default language.');
+  assert(i18nSource.includes('startDomLocalization'), 'Runtime localization observer is missing.');
+  assert(i18nSource.includes('meme_hub_language'), 'Persistent language storage key is missing.');
+} catch {
+  failures.push('Could not validate src/utils/i18n.ts.');
+}
+
+try {
+  const settingsSource = await readFile(path.join(ROOT, 'src/components/SettingsModal.tsx'), 'utf8');
+  assert(settingsSource.includes("setLanguage('en')"), 'English language button is missing from Settings.');
+  assert(settingsSource.includes("setLanguage('ru')"), 'Russian language button is missing from Settings.');
+} catch {
+  failures.push('Could not validate Settings language controls.');
 }
 
 try {
@@ -155,5 +175,6 @@ console.log('  - index.html is at ZIP root');
 console.log('  - Playgama Bridge v2 stable bootstrap is present');
 console.log('  - Playgama storage, lifecycle, rewarded and interstitial integrations are present');
 console.log('  - legacy Yandex SDK integration is absent');
+console.log('  - English is default; Russian can be selected in Settings and persists locally');
 console.log('  - production admin/analytics flags are disabled');
 console.log('  - archive paths are Latin/no-whitespace and source maps are disabled\n');
