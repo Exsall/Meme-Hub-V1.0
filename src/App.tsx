@@ -16,7 +16,7 @@ import { RandomEventModal } from './components/Modals/RandomEventModal';
 import { FortuneWheelModal } from './components/FortuneWheel/FortuneWheelModal';
 import { LeftActionsStack } from './components/Territory/LeftActionsStack';
 import { WelcomeModal } from './components/Modals/WelcomeModal';
-import { yandexSdk } from './utils/yandexSdk';
+import { playgamaSdk } from './utils/playgamaSdk';
 
 const GameShell: React.FC = () => {
   const {
@@ -36,13 +36,13 @@ const GameShell: React.FC = () => {
     isGamePaused,
   } = useGame();
 
-  // Keep Yandex GameplayAPI aligned with the same pause model used by the game
+  // Keep Playgama gameplay lifecycle aligned with the same pause model used by the game
   // itself (welcome screen, menus/modals, wheel, ads, random events, etc.).
   useEffect(() => {
     if (isGamePaused) {
-      yandexSdk.notifyGameplayStop();
+      playgamaSdk.notifyGameplayStop();
     } else {
-      yandexSdk.notifyGameplayStart();
+      playgamaSdk.notifyGameplayStart();
     }
   }, [isGamePaused]);
 
