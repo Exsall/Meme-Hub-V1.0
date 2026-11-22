@@ -33,7 +33,7 @@ import { analytics } from '../utils/analytics';
 import { soundManager } from '../utils/audio';
 import { triggerRandomGameEvent } from '../data/randomEvents';
 import { GAME_CONFIG } from '../config/gameConfig';
-import { yandexSdk } from '../utils/yandexSdk';
+import { playgamaSdk } from '../utils/playgamaSdk';
 
 const STORAGE_KEY = 'meme_lab_save_v1';
 const MAX_COINS = 1_000_000_000_000;
@@ -473,17 +473,17 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Refs for loop
   const isLoadedRef = useRef<boolean>(false);
 
-  // Initialize Yandex SDK and load from Cloud / Local storage
+  // Initialize Playgama Bridge and load from Cloud / Local storage
   useEffect(() => {
     let isCancelled = false;
 
     const initAndLoad = async () => {
       try {
-        // 1. Initialize Yandex SDK
-        await yandexSdk.init();
+        // 1. Initialize Playgama Bridge
+        await playgamaSdk.init();
 
-        // 2. Load save data from Yandex Cloud (with fallback to localStorage)
-        const rawSave = await yandexSdk.loadData(STORAGE_KEY);
+        // 2. Load save data from Playgama Storage (with fallback to localStorage)
+        const rawSave = await playgamaSdk.loadData(STORAGE_KEY);
 
         if (isCancelled) return;
 
@@ -550,7 +550,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  // Save to storage (LocalStorage & Yandex Cloud Save)
+  // Save to storage (LocalStorage & Playgama Storage Save)
   useEffect(() => {
     if (!isLoadedRef.current || !GAME_CONFIG.features.enableAutoSave) return;
     try {
@@ -583,8 +583,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       });
 
-      // Saves to both localStorage and player.setData(..., true)
-      yandexSdk.saveData(STORAGE_KEY, saveData as unknown as Record<string, unknown>);
+      // Saves to both localStorage and Playgama Bridge storage
+      playgamaSdk.saveData(STORAGE_KEY, saveData as unknown as Record<string, unknown>);
     } catch (e) {
       console.error('Save failed:', e);
     }
