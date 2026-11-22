@@ -731,7 +731,16 @@ const EN_TRANSLATIONS: Record<string, string> = {
   "Гибридный артефакт": "Hybrid Artifact",
   "Предмет": "Item",
   "на 10 мин": "for 10 min",
-  "x2 Удача": "x2 Luck"
+  "x2 Удача": "x2 Luck",
+  "монеты 🪙": "coins 🪙",
+  "опыт ⭐️": "XP ⭐️",
+  "Кот 🐱": "Cat 🐱",
+  "Банан 🍌": "Banana 🍌",
+  "Питомец": "Pet",
+  "существо": "creature",
+  "Длительность: 5 сек • Награда мгновенно • Доступно раз в час": "Rewarded ad • Instant reward • Available once per hour",
+  "Бесплатный спин": "Free spin",
+  "Рекламный спин": "Rewarded spin"
 };
 
 const DYNAMIC_TRANSLATORS: Array<[RegExp, (...matches: string[]) => string]> = [
@@ -775,6 +784,7 @@ const DYNAMIC_TRANSLATORS: Array<[RegExp, (...matches: string[]) => string]> = [
   [/^(.+) \(\+5 мест\)$/, (_all, zone) => `${translateText(zone, 'en')} (+5 slots)`],
   [/^\+1 Питомец: «(.+)» (.+)$/, (_all, name, emoji) => `+1 Pet: “${translateText(name, 'en')}” ${emoji}`],
   [/^– 1 существо: «(.+)» (.+)$/, (_all, name, emoji) => `– 1 creature: “${translateText(name, 'en')}” ${emoji}`],
+  [/^Внезапный грозовой раскат грома напугал обитателей полянки! Питомец «(.+)» сильно испугался вспышек молний, перепрыгнул забор и убежал в лес!$/, (_all, name) => `A sudden thunderclap terrified the territory! “${translateText(name, 'en')}” panicked at the lightning, jumped the fence, and ran into the forest!`],
   [/^⚡ x2 Доход на (\d+) минуты!$/, (_all, mins) => `⚡ x2 Income for ${mins} minutes!`],
   [/^– 30% к доходу на (\d+) минуты!$/, (_all, mins) => `–30% income for ${mins} minutes!`],
   [/^– 🪙 ([\d\s,.]+) монет штрафа$/, (_all, coins) => `– 🪙 ${coins} coin fine`],
