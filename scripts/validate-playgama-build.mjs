@@ -113,6 +113,10 @@ try {
   assert(i18nSource.includes("export type GameLanguage = 'en' | 'ru'"), 'RU/EN language types are missing.');
   assert(i18nSource.includes("return saved === 'ru' ? 'ru' : 'en'"), 'English must be the default language.');
   assert(i18nSource.includes('startDomLocalization'), 'Runtime localization observer is missing.');
+  assert(i18nSource.includes('if (translated !== value) element.setAttribute'), 'Translation attributes must not trigger an endless mutation loop.');
+  assert(i18nSource.includes('if (translated !== value) node.nodeValue'), 'Translation text must not trigger an endless mutation loop.');
+  assert(i18nSource.includes('if (translated !== value) current.nodeValue'), 'Nested translation text must not trigger an endless mutation loop.');
+  assert(i18nSource.includes('observer.observe(root,'), 'Localization must not mutate SDK overlays.');
   assert(i18nSource.includes('meme_hub_language'), 'Persistent language storage key is missing.');
 } catch {
   failures.push('Could not validate src/utils/i18n.ts.');
