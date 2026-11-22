@@ -233,21 +233,11 @@ class PlaygamaService {
     soundManager.unmuteAfterAd();
   }
 
-  private scheduleGameReady(): void {
+  public scheduleGameReady(): void {
     if (this.gameReadySent || this.gameReadySending || this.gameReadyScheduled || !this.bridge) return;
     this.gameReadyScheduled = true;
-
-    const sendReady = () => {
-      if (typeof requestAnimationFrame === 'function') {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => this.notifyGameReady());
-        });
-      } else {
-        setTimeout(() => this.notifyGameReady(), 0);
-      }
-    };
-
-    setTimeout(sendReady, 0);
+    // A hidden QA iframe may never receive animation frames.
+    setTimeout(() => this.notifyGameReady(), 0);
   }
 
   public notifyGameReady(): void {
@@ -316,7 +306,7 @@ class PlaygamaService {
   }
 
   private readLocalData(storageKey: string): Record<string, unknown> | null {
-    if (typeof window === 'undefined' || !window.localStorage) return null;
+    if (typeof window === 'undefined') return null;
 
     try {
       const local = localStorage.getItem(storageKey);
@@ -328,7 +318,7 @@ class PlaygamaService {
   }
 
   private writeLocalData(storageKey: string, data: Record<string, unknown>): void {
-    if (typeof window === 'undefined' || !window.localStorage) return;
+    if (typeof window === 'undefined') return;
 
     try {
       localStorage.setItem(storageKey, JSON.stringify(data));
@@ -352,8 +342,6 @@ class PlaygamaService {
     } catch (error) {
       console.warn('[Playgama Bridge] Storage read failed; using local fallback:', error);
       return this.readLocalData(storageKey);
-    } finally {
-      this.scheduleGameReady();
     }
   }
 
