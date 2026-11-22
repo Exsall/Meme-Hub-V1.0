@@ -6,10 +6,10 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>Meme Lab V 1.0</title>
-    <meta name="description" content="Meme Lab V 1.0 — Разработано командой 3R Games. Браузерная 2D игра в жанре merge & idle simulator, где игроки комбинируют животных, фрукты и предметы для создания абсурдных мемов-существ." />
-    <meta property="og:title" content="Meme Lab V 1.0" />
-    <meta property="og:description" content="Meme Lab V 1.0 — Разработано командой 3R Games. Браузерная 2D игра в жанре merge & idle simulator, где игроки комбинируют животных, фрукты и предметы для создания абсурдных мемов-существ." />
+    <title>Meme Hub V2.0</title>
+    <meta name="description" content="Meme Hub V2.0 — браузерная 2D merge & idle игра от команды G3R." />
+    <meta property="og:title" content="Meme Hub V2.0" />
+    <meta property="og:description" content="Создавай мемных существ, развивай лабораторию и открывай новые зоны в Meme Hub V2.0." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
 
@@ -49,37 +49,32 @@
       }
     </style>
 
-    <!-- Yandex Games SDK. Archive builds hosted by Yandex must use /sdk.js. -->
-    <script src="/sdk.js"></script>
+    <!-- Playgama Bridge v2. The stable CDN loads the adapter for the current platform. -->
+    <script src="https://bridge.playgama.com/v2/stable/playgama-bridge.js"></script>
     <script>
-      // Initialize Yandex SDK at startup and read environment.i18n.lang immediately.
-      // Requirement 2.14 requires SDK-based language detection during game launch,
-      // even when the game currently declares only one supported language.
-      if (typeof YaGames !== 'undefined') {
-        window.yandexSdkPromise = YaGames.init()
-          .then(function (ysdk) {
-            window.ysdk = ysdk;
-
-            // IMPORTANT: this access is what Yandex debug/moderation uses to verify I18N.
-            var platformLanguage = ysdk.environment.i18n.lang;
-            window.__YANDEX_LANGUAGE__ = String(platformLanguage || 'ru').toLowerCase();
-
-            // Meme Lab currently ships Russian UI only, so unsupported portal languages
-            // fall back to Russian while the original SDK language remains recorded.
+      if (window.bridge) {
+        window.bridge.gameVersion = '2.0';
+        window.playgamaBridgePromise = window.bridge
+          .initialize()
+          .then(function () {
+            var platformLanguage = String(window.bridge.platform.language || 'ru').toLowerCase();
             document.documentElement.lang = 'ru';
-            document.documentElement.dataset.platformLanguage = window.__YANDEX_LANGUAGE__;
-
+            document.documentElement.dataset.platformLanguage = platformLanguage;
             console.log(
-              '[Yandex SDK] Bootstrap initialized. Platform language:',
-              window.__YANDEX_LANGUAGE__,
-              'Active game language: ru',
+              '[Playgama Bridge] Bootstrap initialized. Platform:',
+              window.bridge.platform.id,
+              'Language:',
+              platformLanguage,
             );
-            return ysdk;
+            return window.bridge;
           })
           .catch(function (error) {
-            console.error('[Yandex SDK] Bootstrap initialization failed:', error);
+            console.warn('[Playgama Bridge] Bootstrap initialization failed:', error);
             return null;
           });
+      } else {
+        console.warn('[Playgama Bridge] SDK script is unavailable. Running in standalone preview mode.');
+        window.playgamaBridgePromise = Promise.resolve(null);
       }
     </script>
   </head>
