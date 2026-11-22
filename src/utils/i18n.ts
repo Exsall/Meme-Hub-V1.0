@@ -895,7 +895,9 @@ export const startDomLocalization = (): (() => void) => {
 
   if (language === 'ru') return () => {};
 
-  translateNode(document.body);
+  const root = document.getElementById('root');
+  if (!root) return () => {};
+  translateNode(root);
 
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
@@ -909,7 +911,7 @@ export const startDomLocalization = (): (() => void) => {
     }
   });
 
-  observer.observe(document.body, {
+  observer.observe(root, {
     childList: true,
     subtree: true,
     characterData: true,
